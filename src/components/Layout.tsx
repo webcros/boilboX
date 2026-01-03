@@ -3,9 +3,11 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useTheme } from '@/context/ThemeContext';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { theme, toggleTheme } = useTheme();
   const pathname = usePathname();
 
   const navLinks = [
@@ -40,6 +42,19 @@ const Navbar = () => {
         </div>
 
         <div className="flex items-center gap-4">
+          {/* Theme Toggle */}
+          <button 
+            onClick={toggleTheme}
+            className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+            aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+          >
+            {theme === 'light' ? (
+              <span className="material-symbols-outlined text-gray-700 dark:text-gray-300">dark_mode</span>
+            ) : (
+              <span className="material-symbols-outlined text-yellow-500">light_mode</span>
+            )}
+          </button>
+          
           <Link href="/order" className="hidden sm:flex h-10 px-5 items-center justify-center rounded-lg bg-primary hover:bg-primary-hover transition-colors text-bg-dark text-sm font-bold">
             Find a Kiosk
           </Link>
@@ -53,6 +68,22 @@ const Navbar = () => {
       {isMenuOpen && (
         <div className="lg:hidden bg-white dark:bg-bg-dark border-b border-gray-100 dark:border-white/10 px-4 py-4 animate-fade-in">
           <div className="flex flex-col gap-4">
+            {/* Theme Toggle in Mobile Menu */}
+            <div className="flex items-center justify-between p-2">
+              <span className="font-bold">Theme</span>
+              <button 
+                onClick={toggleTheme}
+                className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+              >
+                {theme === 'light' ? (
+                  <span className="material-symbols-outlined text-gray-700 dark:text-gray-300">dark_mode</span>
+                ) : (
+                  <span className="material-symbols-outlined text-yellow-500">light_mode</span>
+                )}
+              </button>
+            </div>
+            
             {navLinks.map((link) => (
               <Link
                 key={link.path}

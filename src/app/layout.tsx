@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Manrope, Noto_Sans } from "next/font/google";
 import "./globals.css";
 import { Layout } from "@/components/Layout";
+import { ThemeProvider } from "@/context/ThemeContext";
 
 const manrope = Manrope({
   variable: "--font-manrope",
@@ -83,7 +84,9 @@ export default function RootLayout({
       <body
         className={`${manrope.variable} ${notoSans.variable} antialiased bg-bg-light dark:bg-bg-dark text-[#111813] dark:text-gray-100 transition-colors duration-300`}
       >
-        <Layout>{children}</Layout>
+        <ThemeProvider>
+          <Layout>{children}</Layout>
+        </ThemeProvider>
       </body>
     </html>
   );

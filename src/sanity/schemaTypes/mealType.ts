@@ -117,10 +117,13 @@ export const mealType = defineType({
       price: 'price',
     },
     prepare({ title, subtitle, media, price }) {
+      // Ensure media is a proper image asset and not a raw URL
+      const imageUrl = media && typeof media === 'object' && media.asset ? media : null;
+      
       return {
         title,
         subtitle: `${subtitle} - $${price?.toFixed(2) || '0.00'}`,
-        media,
+        media: imageUrl,
       };
     },
   },

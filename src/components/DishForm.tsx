@@ -72,7 +72,7 @@ export default function DishForm({ onClose, onSuccess }: DishFormProps) {
         carbs: formData.carbs,
         fats: formData.fats || undefined,
         category: formData.category,
-        image: formData.image || 'https://source.unsplash.com/800x600/?food' // Default image
+        image: formData.image ? { _type: 'image', asset: { _ref: formData.image } } : undefined
       };
 
       await sanityClient.create(newDish);
