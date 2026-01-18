@@ -39,6 +39,10 @@ export async function getCurrentAdmin() {
       return null;
     }
     
+    if (!session.user.email) {
+      return null;
+    }
+
     return {
       email: session.user.email,
       name: session.user.user_metadata.full_name || session.user.email,
