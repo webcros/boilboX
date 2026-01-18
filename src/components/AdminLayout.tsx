@@ -36,7 +36,7 @@ interface User {
 
 interface AdminLayoutProps {
   children: React.ReactNode;
-  user?: User;
+  user?: User | null;
 }
 
 export const AdminLayout = ({ children, user: serverUser }: AdminLayoutProps) => {
