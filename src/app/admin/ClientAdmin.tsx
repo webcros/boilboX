@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { AdminLayout } from '@/components/AdminLayout';
 import { getMeals } from '@/lib/sanity-queries';
 import { Meal } from '@/lib/types';
 import DishForm from '@/components/DishForm';

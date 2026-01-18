@@ -1,6 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Remove reactCompiler as it's not available in Next.js 14
-}
+  async redirects() {
+    return [
+      {
+        source: '/admin',
+        destination: '/studio',
+        permanent: false,
+      },
+    ];
+  },
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

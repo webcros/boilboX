@@ -2,7 +2,8 @@ import { sanityClient } from './sanity';
 import { Meal } from './types';
 
 // GROQ query to fetch all meals
-export const mealsQuery = `*[_type == "meal" && available == true] | order(order asc, name asc) {
+// Includes meals where `available` is either true or not set (for older documents)
+export const mealsQuery = `*[_type == "meal" && (!defined(available) || available == true)] | order(order asc, name asc) {
   _id,
   name,
   description,
@@ -48,7 +49,7 @@ export async function getMeals(): Promise<Meal[]> {
 // Fetch featured meals (for homepage)
 export async function getFeaturedMeals(limit: number = 3): Promise<Meal[]> {
   try {
-    const query = `*[_type == "meal" && featured == true && available == true] | order(order asc) [0...${limit}] {
+    const query = `*[_type == "meal" && featured == true && (!defined(available) || available == true)] | order(order asc) [0...${limit}] {
       _id,
       name,
       description,
@@ -90,7 +91,7 @@ export async function getFeaturedMeals(limit: number = 3): Promise<Meal[]> {
 // Fetch meals by category
 export async function getMealsByCategory(category: string): Promise<Meal[]> {
   try {
-    const query = `*[_type == "meal" && category == $category && available == true] | order(order asc, name asc) {
+    const query = `*[_type == "meal" && category == $category && (!defined(available) || available == true)] | order(order asc, name asc) {
       _id,
       name,
       description,

@@ -10,7 +10,8 @@ import {testimonialType} from './testimonialType'
 import {storyType} from './storyType'
 import {partnerType} from './partnerType'
 import {locationType} from './locationType'
+import {userType} from './userType'
 
 export const schema: { types: SchemaTypeDefinition[] } = {
-  types: [blockContentType, categoryType, postType, authorType, mealType, impactReportType, testimonialType, storyType, partnerType, locationType],
+  types: [blockContentType, categoryType, postType, authorType, mealType, impactReportType, testimonialType, storyType, partnerType, locationType, userType],
 }

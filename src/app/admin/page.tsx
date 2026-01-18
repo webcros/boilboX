@@ -1,24 +1,24 @@
-import ClientAdmin from './ClientAdmin';
+import { redirect } from 'next/navigation';
 
 // Export generateMetadata for dynamic metadata generation
 export async function generateMetadata() {
   return {
-    title: "Admin Dashboard | BoilboX",
-    description: "Manage your BoilboX website content, menu items, and analytics from the admin dashboard.",
+    title: "Admin | BoilboX",
+    description: "Admin access is currently handled via the Studio.",
     openGraph: {
-      title: "Admin Dashboard | BoilboX",
-      description: "Manage your BoilboX website content, menu items, and analytics from the admin dashboard.",
+      title: "Admin | BoilboX",
+      description: "Admin access is currently handled via the Studio.",
       type: "website",
       url: "https://boilox.com/admin",
     },
     twitter: {
       card: "summary_large_image",
-      title: "Admin Dashboard | BoilboX",
-      description: "Manage your BoilboX website content, menu items, and analytics from the admin dashboard.",
+      title: "Admin | BoilboX",
+      description: "Admin access is currently handled via the Studio.",
     },
   };
 }
 
 export default function AdminPage() {
-  return <ClientAdmin />;
+	redirect('/studio');
 }

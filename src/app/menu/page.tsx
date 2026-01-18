@@ -72,12 +72,14 @@ export default async function MenuPage({
         </div>
       </div>
 
-      {/* Error State - simplified since this is server rendered */}
-      {meals.length === 0 && selectedCategory !== 'All' && (
+      {/* Empty/Error State */}
+      {meals.length === 0 && (
         <div className="text-center py-20">
           <p className="text-gray-500 text-lg mb-2">No meals found</p>
           <p className="text-gray-400 text-sm">
-            {`No meals available in the ${selectedCategory} category.`}
+            {selectedCategory === 'All'
+              ? 'No meals are available yet. Please add meals in Sanity and publish them.'
+              : `No meals available in the ${selectedCategory} category.`}
           </p>
         </div>
       )}
@@ -86,55 +88,78 @@ export default async function MenuPage({
       {meals.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
           {meals.map((meal) => (
-          <article key={meal.id} className="bg-white dark:bg-surface-dark rounded-[2.5rem] overflow-hidden border border-gray-100 dark:border-white/10 hover:shadow-2xl transition-all duration-500 group">
-            <div className="aspect-[4/3] relative overflow-hidden">
-              <img src={meal.image} alt={meal.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-              <div className="absolute top-5 left-5 z-10 flex gap-2">
-                <span className="px-3 py-1 rounded-lg bg-white/90 dark:bg-black/80 backdrop-blur-md text-[10px] font-black uppercase tracking-widest text-primary">
-                  {meal.category}
-                </span>
-                {meal.tags?.map(tag => (
-                  <span key={tag} className="px-3 py-1 rounded-lg bg-white/90 dark:bg-black/80 backdrop-blur-md text-[10px] font-black uppercase tracking-widest text-orange-500">
-                    {tag}
+            <article
+              key={meal.id}
+              className="flex flex-col bg-white dark:bg-surface-dark rounded-3xl overflow-hidden border border-gray-100 dark:border-white/10 hover:shadow-xl transition-all duration-500 group"
+            >
+              <div className="aspect-[4/3] relative overflow-hidden">
+                <img
+                  src={meal.image}
+                  alt={meal.name}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                />
+                <div className="absolute inset-x-5 top-5 z-10 flex flex-wrap gap-2">
+                  <span className="px-3 py-1 rounded-full bg-white/90 dark:bg-black/80 backdrop-blur-md text-[10px] font-semibold uppercase tracking-[0.16em] text-primary">
+                    {meal.category}
                   </span>
-                ))}
-              </div>
-            </div>
-            
-            <div className="p-8">
-              <div className="flex justify-between items-start mb-4">
-                <h3 className="text-2xl font-black leading-tight group-hover:text-primary transition-colors">{meal.name}</h3>
-                <span className="text-primary font-black text-2xl">${meal.price.toFixed(2)}</span>
-              </div>
-              <p className="text-gray-500 text-sm mb-8 line-clamp-2 leading-relaxed">{meal.description}</p>
-              
-              {/* Macros Breakdown */}
-              <div className="grid grid-cols-3 gap-4 py-6 border-y border-dashed border-gray-100 dark:border-white/10 mb-8">
-                <div className="text-center">
-                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Calories</p>
-                  <p className="text-xl font-black">{meal.calories}</p>
-                </div>
-                <div className="text-center border-x border-gray-100 dark:border-white/10">
-                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Protein</p>
-                  <p className="text-xl font-black">{meal.protein}</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Carbs</p>
-                  <p className="text-xl font-black">{meal.carbs}</p>
+                  {meal.tags?.map((tag) => (
+                    <span
+                      key={tag}
+                      className="px-3 py-1 rounded-full bg-white/90 dark:bg-black/80 backdrop-blur-md text-[10px] font-semibold uppercase tracking-[0.16em] text-orange-500"
+                    >
+                      {tag}
+                    </span>
+                  ))}
                 </div>
               </div>
-              
-              <div className="flex gap-4">
-                <button className="flex-1 h-14 rounded-xl bg-primary hover:bg-primary-hover text-bg-dark font-black flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg shadow-primary/20">
-                  Add to Order
-                  <span className="material-symbols-outlined">add_circle</span>
-                </button>
-                <button className="w-14 h-14 rounded-xl border border-gray-200 dark:border-white/10 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
-                  <span className="material-symbols-outlined">qr_code_scanner</span>
-                </button>
+
+              <div className="flex flex-1 flex-col p-6 md:p-7 lg:p-8">
+                <div className="flex items-start justify-between gap-3 mb-3">
+                  <h3 className="text-lg md:text-xl font-extrabold leading-snug group-hover:text-primary transition-colors">
+                    {meal.name}
+                  </h3>
+                  <span className="shrink-0 rounded-full bg-primary/10 px-3 py-1 text-sm font-extrabold text-primary">
+                    ${meal.price.toFixed(2)}
+                  </span>
+                </div>
+
+                <p className="text-gray-500 text-sm mb-6 line-clamp-2 leading-relaxed">
+                  {meal.description}
+                </p>
+
+                {/* Macros Breakdown */}
+                <div className="grid grid-cols-3 gap-4 py-4 border-y border-dashed border-gray-100 dark:border-white/10 mb-6">
+                  <div className="text-center">
+                    <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-[0.18em] mb-1">
+                      Calories
+                    </p>
+                    <p className="text-base md:text-lg font-extrabold">{meal.calories}</p>
+                  </div>
+                  <div className="text-center border-x border-gray-100 dark:border-white/10 px-2">
+                    <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-[0.18em] mb-1">
+                      Protein
+                    </p>
+                    <p className="text-base md:text-lg font-extrabold">{meal.protein}</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-[0.18em] mb-1">
+                      Carbs
+                    </p>
+                    <p className="text-base md:text-lg font-extrabold">{meal.carbs}</p>
+                  </div>
+                </div>
+
+                <div className="mt-auto flex gap-3">
+                  <button className="flex-1 h-12 md:h-13 rounded-2xl bg-primary hover:bg-primary-hover text-bg-dark font-extrabold text-sm md:text-[0.9rem] flex items-center justify-center gap-2 transition-all active:scale-[0.97] shadow-md shadow-primary/20">
+                    Add to Order
+                    <span className="material-symbols-outlined text-base md:text-lg">add_circle</span>
+                  </button>
+                  <button className="w-12 h-12 md:w-13 md:h-13 rounded-2xl border border-gray-200 dark:border-white/10 flex items-center justify-center hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                    <span className="material-symbols-outlined text-base md:text-lg">qr_code_scanner</span>
+                  </button>
+                </div>
               </div>
-            </div>
-          </article>
+            </article>
           ))}
         </div>
       )}
