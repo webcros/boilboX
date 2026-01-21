@@ -3,7 +3,8 @@ import { Meal } from './types';
 
 // GROQ query to fetch all meals
 // Includes meals where `available` is either true or not set (for older documents)
-export const mealsQuery = `*[_type == "meal" && (!defined(available) || available == true)] | order(order asc, name asc) {
+// and only meals with a defined image asset so menu cards always have an image
+export const mealsQuery = `*[_type == "meal" && (!defined(available) || available == true) && defined(image.asset)] | order(order asc, name asc) {
   _id,
   name,
   description,
@@ -93,7 +94,7 @@ export async function getFeaturedMeals(limit: number = 3): Promise<Meal[]> {
 // Fetch meals by category
 export async function getMealsByCategory(category: string): Promise<Meal[]> {
   try {
-    const query = `*[_type == "meal" && category == $category && (!defined(available) || available == true)] | order(order asc, name asc) {
+    const query = `*[_type == "meal" && category == $category && (!defined(available) || available == true) && defined(image.asset)] | order(order asc, name asc) {
       _id,
       name,
       description,
