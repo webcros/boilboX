@@ -60,10 +60,10 @@ export default async function MenuPage({
             <a
               key={cat}
               href={`?category=${cat}`}
-              className={`flex h-11 shrink-0 items-center justify-center px-6 rounded-full text-sm font-bold transition-all dark:text-white ${
+              className={`flex h-11 shrink-0 items-center justify-center px-6 rounded-full text-sm font-bold transition-all text-white bg-primary hover:bg-primary-hover ${
                 selectedCategory === cat 
-                ? 'bg-bg-dark dark:bg-primary text-white dark:text-bg-dark' 
-                : 'bg-white border border-gray-200 dark:bg-surface-dark dark:border-white/10 hover:border-primary'
+                ? 'dark:bg-primary dark:text-bg-dark dark:hover:bg-primary' 
+                : 'border border-gray-200 dark:bg-surface-dark dark:border-white/10 hover:border-primary dark:hover:bg-surface-dark'
               }`}
             >
               {cat}
