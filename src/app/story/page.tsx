@@ -85,7 +85,7 @@ export default function StoryPage() {
           </div>
         </section>
 
-        <section className="bg-bg-dark text-white rounded-3xl p-10 md:p-12">
+        <section className="bg-surface-dark text-white rounded-3xl p-10 md:p-12">
           <h2 className="text-2xl md:text-3xl font-black mb-4">Where we&apos;re headed</h2>
           <p className="text-sm text-white/80 mb-4">
             BoilboX is still early. We&apos;re learning every day from guests,

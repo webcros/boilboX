@@ -49,26 +49,28 @@ export async function getMeals(): Promise<Meal[]> {
 // Fetch featured meals (for homepage)
 export async function getFeaturedMeals(limit: number = 3): Promise<Meal[]> {
   try {
-    const query = `*[_type == "meal" && featured == true && (!defined(available) || available == true)] | order(order asc) [0...${limit}] {
-      _id,
-      name,
-      description,
-      price,
-      calories,
-      protein,
-      carbs,
-      fats,
-      "image": image.asset->url,
-      "imageAlt": image.alt,
-      category,
-      tags,
-      featured,
-      available,
-      order
-    }`;
-    
+    // Always return the most recently created available meals
+    const query = `*[_type == "meal" && (!defined(available) || available == true) && defined(image.asset)]
+      | order(_createdAt desc) [0...${limit}] {
+        _id,
+        name,
+        description,
+        price,
+        calories,
+        protein,
+        carbs,
+        fats,
+        "image": image.asset->url,
+        "imageAlt": image.alt,
+        category,
+        tags,
+        featured,
+        available,
+        order
+      }`;
+
     const meals = await sanityClient.fetch(query);
-    
+
     return meals.map((meal: any) => ({
       id: meal._id,
       name: meal.name,

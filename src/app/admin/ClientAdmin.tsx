@@ -72,7 +72,7 @@ export default function ClientAdmin() {
     return (
       <div className="flex min-h-[70vh] items-center justify-center">
         <div className="text-center">
-          <div className="mb-4 text-lg font-medium text-gray-900 dark:text-gray-100">
+          <div className="mb-4 text-lg font-medium text-gray-800 dark:text-gray-100">
             Loading admin dashboard...
           </div>
           <div className="h-2 w-64 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
@@ -88,8 +88,8 @@ export default function ClientAdmin() {
       {/* Admin Header */}
       <div className="px-4 md:px-10 lg:px-40 py-12">
         <div className="mb-12">
-          <h1 className="text-4xl md:text-6xl font-black mb-4">Admin Dashboard</h1>
-          <p className="text-gray-500 text-lg">Manage your BoilboX website content and analytics</p>
+          <h1 className="text-4xl md:text-6xl font-black mb-4 text-gray-900 dark:text-gray-50">Admin Dashboard</h1>
+          <p className="text-gray-600 dark:text-gray-300 text-lg">Manage your BoilboX website content and analytics</p>
         </div>
 
         {error && (
@@ -141,7 +141,7 @@ export default function ClientAdmin() {
                 <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-2">
                   Total Page Views
                 </h3>
-                <p className="text-3xl font-black text-gray-900 dark:text-white">
+                <p className="text-3xl font-black text-gray-800 dark:text-gray-50">
                   {totalPageViews.toLocaleString()}
                 </p>
               </div>
@@ -150,7 +150,7 @@ export default function ClientAdmin() {
                 <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-2">
                   Unique Visitors
                 </h3>
-                <p className="text-3xl font-black text-gray-900 dark:text-white">
+                <p className="text-3xl font-black text-gray-800 dark:text-gray-50">
                   {totalUniqueVisitors.toLocaleString()}
                 </p>
               </div>
@@ -159,7 +159,7 @@ export default function ClientAdmin() {
                 <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-2">
                   Avg Bounce Rate
                 </h3>
-                <p className="text-3xl font-black text-gray-900 dark:text-white">
+                <p className="text-3xl font-black text-gray-800 dark:text-gray-50">
                   {avgBounceRate.toFixed(1)}%
                 </p>
               </div>
@@ -168,7 +168,7 @@ export default function ClientAdmin() {
                 <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-2">
                   Avg Session
                 </h3>
-                <p className="text-3xl font-black text-gray-900 dark:text-white">
+                <p className="text-3xl font-black text-gray-800 dark:text-gray-50">
                   {Math.round(avgSessionDuration)}s
                 </p>
               </div>

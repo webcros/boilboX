@@ -27,6 +27,10 @@ export interface KioskLocation {
   status: 'Open Now' | 'Closing Soon' | 'Opens 10 AM';
   closingTime?: string;
   distance: string;
+  lat: number;
+  lng: number;
+  wheelchairAccessible?: boolean;
+  ebtAccepted?: boolean;
   operator?: {
     name: string;
     avatar: string;

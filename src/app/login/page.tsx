@@ -64,7 +64,7 @@ export default function LoginPage() {
     <div className={`min-h-screen flex items-center justify-center ${theme === 'light' ? 'bg-gray-50' : 'bg-gray-900'}`}>
       <div className={`max-w-md w-full p-8 rounded-2xl shadow-xl ${theme === 'light' ? 'bg-white' : 'bg-gray-800'}`}>
         <div className="text-center mb-8">
-          <h1 className={`text-3xl font-bold ${theme === 'light' ? 'text-gray-900' : 'text-white'}`}>
+          <h1 className={`text-3xl font-bold ${theme === 'light' ? 'text-gray-800' : 'text-gray-50'}`}>
             Admin Login
           </h1>
           <p className={`mt-2 ${theme === 'light' ? 'text-gray-600' : 'text-gray-300'}`}>

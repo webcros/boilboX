@@ -4,7 +4,7 @@ export default function ModelPage() {
       <div className="max-w-5xl mx-auto">
         <header className="text-center mb-16">
           <h1 className="text-5xl md:text-7xl font-black mb-4">Our Model</h1>
-          <p className="text-lg md:text-xl text-gray-500 max-w-3xl mx-auto">
+          <p className="text-lg md:text-xl text-gray-500 dark:text-gray-300 max-w-3xl mx-auto">
             BoilboX is designed to make clean, oil-free food as convenient as fast
             food – without compromising on transparency, nutrition, or unit
             economics.
@@ -13,24 +13,24 @@ export default function ModelPage() {
 
         <section className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
           <div className="bg-white dark:bg-surface-dark border border-gray-100 dark:border-white/10 rounded-3xl p-8">
-            <h2 className="text-xl font-bold mb-3">Mother Kitchen</h2>
-            <p className="text-gray-500 text-sm leading-relaxed">
+            <h2 className="text-xl font-bold mb-3 dark:text-white">Mother Kitchen</h2>
+            <p className="text-gray-500 dark:text-gray-300 text-sm leading-relaxed">
               We centralize prep in a single high-hygiene Mother Kitchen. Ingredients
               are washed, cut, portioned and partially cooked under tight controls,
               then sent to kiosks chilled and ready to finish.
             </p>
           </div>
           <div className="bg-white dark:bg-surface-dark border border-gray-100 dark:border-white/10 rounded-3xl p-8">
-            <h2 className="text-xl font-bold mb-3">Smart Kiosks</h2>
-            <p className="text-gray-500 text-sm leading-relaxed">
+            <h2 className="text-xl font-bold mb-3 dark:text-white">Smart Kiosks</h2>
+            <p className="text-gray-500 dark:text-gray-300 text-sm leading-relaxed">
               Compact kiosks handle the final boil, assembly and handoff. This
               keeps the footprint small, operations simple, and lets us place BoilboX
               where people actually live, work and commute.
             </p>
           </div>
           <div className="bg-white dark:bg-surface-dark border border-gray-100 dark:border-white/10 rounded-3xl p-8">
-            <h2 className="text-xl font-bold mb-3">Digital First</h2>
-            <p className="text-gray-500 text-sm leading-relaxed">
+            <h2 className="text-xl font-bold mb-3 dark:text-white">Digital First</h2>
+            <p className="text-gray-500 dark:text-gray-300 text-sm leading-relaxed">
               Orders are placed via app or kiosk. Every dish is tied to a nutrition
               profile, prep timestamp and batch, so guests can trust what they&apos;re
               eating – every single time.
@@ -88,7 +88,7 @@ export default function ModelPage() {
         </section>
 
         <section className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
-          <div className="bg-bg-dark text-white rounded-3xl p-10">
+          <div className="bg-surface-dark text-white rounded-3xl p-10">
             <h2 className="text-2xl font-black mb-4">Why this model matters</h2>
             <p className="text-sm text-white/80 mb-4">
               Traditional quick service formats are built around oil, heavy

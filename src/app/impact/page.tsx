@@ -4,14 +4,14 @@ export default function ImpactPage() {
       <div className="max-w-6xl mx-auto">
         <header className="text-center mb-16">
           <h1 className="text-5xl md:text-7xl font-black mb-4">Social Impact</h1>
-          <p className="text-lg md:text-xl text-gray-500 max-w-3xl mx-auto">
+          <p className="text-lg md:text-xl text-gray-500 dark:text-gray-300 max-w-3xl mx-auto">
             Every bowl has a footprint. Our job is to make sure BoilboX bowls
             leave people, communities and the planet better off.
           </p>
         </header>
 
         <section className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-          <div className="bg-bg-dark text-white rounded-3xl p-8">
+          <div className="bg-surface-dark text-white rounded-3xl p-8">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary mb-2">
               Health
             </p>
@@ -26,7 +26,7 @@ export default function ImpactPage() {
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary mb-2">
               Community
             </p>
-            <h2 className="text-3xl font-black mb-2">Meals That Give Back</h2>
+            <h2 className="text-3xl font-black mb-2 dark:text-white">Meals That Give Back</h2>
             <p className="text-sm text-gray-600 dark:text-gray-300">
               For every milestone we hit in a location, we commit meals to local
               partners focused on child nutrition and food security.
@@ -36,7 +36,7 @@ export default function ImpactPage() {
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary mb-2">
               Environment
             </p>
-            <h2 className="text-3xl font-black mb-2">Less Waste, Smarter Use</h2>
+            <h2 className="text-3xl font-black mb-2 dark:text-white">Less Waste, Smarter Use</h2>
             <p className="text-sm text-gray-600 dark:text-gray-300">
               Central prep and portioning help us use ingredients fully and keep
               food waste extremely low across the system.
@@ -114,7 +114,7 @@ export default function ImpactPage() {
           </div>
         </section>
 
-        <section className="bg-bg-dark text-white rounded-3xl p-10 md:p-12 text-center">
+        <section className="bg-surface-dark text-white rounded-3xl p-10 md:p-12 text-center">
           <h2 className="text-2xl md:text-3xl font-black mb-4">Help us do this right</h2>
           <p className="text-sm text-white/80 max-w-2xl mx-auto">
             If you&apos;re a nonprofit, a public health team or a community leader

@@ -51,7 +51,7 @@ export default async function MenuPage({
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
         <div>
           <h1 className="text-4xl md:text-6xl font-black mb-4">Our Menu</h1>
-          <p className="text-gray-500 text-lg">Clean eating made simple. Precision boiled, zero oil added.</p>
+          <p className="text-gray-500 dark:text-gray-300 text-lg">Clean eating made simple. Precision boiled, zero oil added.</p>
         </div>
         
         {/* Category Filters */}
@@ -60,7 +60,7 @@ export default async function MenuPage({
             <a
               key={cat}
               href={`?category=${cat}`}
-              className={`flex h-11 shrink-0 items-center justify-center px-6 rounded-full text-sm font-bold transition-all ${
+              className={`flex h-11 shrink-0 items-center justify-center px-6 rounded-full text-sm font-bold transition-all dark:text-white ${
                 selectedCategory === cat 
                 ? 'bg-bg-dark dark:bg-primary text-white dark:text-bg-dark' 
                 : 'bg-white border border-gray-200 dark:bg-surface-dark dark:border-white/10 hover:border-primary'
@@ -115,7 +115,7 @@ export default async function MenuPage({
 
               <div className="flex flex-1 flex-col p-6 md:p-7 lg:p-8">
                 <div className="flex items-start justify-between gap-3 mb-3">
-                  <h3 className="text-lg md:text-xl font-extrabold leading-snug group-hover:text-primary transition-colors">
+                  <h3 className="text-lg md:text-xl font-extrabold leading-snug text-gray-900 dark:text-white group-hover:text-primary transition-colors">
                     {meal.name}
                   </h3>
                   <span className="shrink-0 rounded-full bg-primary/10 px-3 py-1 text-sm font-extrabold text-primary">
@@ -123,26 +123,26 @@ export default async function MenuPage({
                   </span>
                 </div>
 
-                <p className="text-gray-500 text-sm mb-6 line-clamp-2 leading-relaxed">
+                <p className="text-gray-500 dark:text-gray-300 text-sm mb-6 line-clamp-2 leading-relaxed">
                   {meal.description}
                 </p>
 
                 {/* Macros Breakdown */}
                 <div className="grid grid-cols-3 gap-4 py-4 border-y border-dashed border-gray-100 dark:border-white/10 mb-6">
                   <div className="text-center">
-                    <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-[0.18em] mb-1">
+                    <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-300 uppercase tracking-[0.18em] mb-1">
                       Calories
                     </p>
                     <p className="text-base md:text-lg font-extrabold">{meal.calories}</p>
                   </div>
                   <div className="text-center border-x border-gray-100 dark:border-white/10 px-2">
-                    <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-[0.18em] mb-1">
+                    <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-300 uppercase tracking-[0.18em] mb-1">
                       Protein
                     </p>
                     <p className="text-base md:text-lg font-extrabold">{meal.protein}</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-[0.18em] mb-1">
+                    <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-300 uppercase tracking-[0.18em] mb-1">
                       Carbs
                     </p>
                     <p className="text-base md:text-lg font-extrabold">{meal.carbs}</p>
@@ -165,9 +165,9 @@ export default async function MenuPage({
       )}
       
       {/* Notice */}
-      <div className="mt-20 p-10 rounded-3xl bg-bg-dark text-white text-center max-w-4xl mx-auto border-2 border-primary/30">
+      <div className="mt-20 p-10 rounded-3xl bg-surface-dark text-white text-center max-w-4xl mx-auto border-2 border-primary/30">
         <h4 className="text-2xl font-black mb-4">Pure Nutrition. Zero Secrets.</h4>
-        <p className="text-gray-400 max-w-2xl mx-auto leading-relaxed">
+        <p className="text-white/80 max-w-2xl mx-auto leading-relaxed">
           Every meal is prepared in our central Mother Kitchen following strict hygiene standards. We track every nutrient so you don't have to worry about what's in your bowl.
         </p>
       </div>

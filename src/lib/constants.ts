@@ -73,6 +73,10 @@ export const LOCATIONS: KioskLocation[] = [
     status: 'Open Now',
     closingTime: '8 PM',
     distance: '0.8 mi',
+    lat: 37.7749,
+    lng: -122.4194,
+    wheelchairAccessible: true,
+    ebtAccepted: true,
     operator: {
       name: 'Operator Sarah',
       avatar: 'https://i.pravatar.cc/150?u=op_sarah',
@@ -86,6 +90,10 @@ export const LOCATIONS: KioskLocation[] = [
     status: 'Closing Soon',
     closingTime: '5 PM',
     distance: '2.4 mi',
+    lat: 37.7599,
+    lng: -122.4148,
+    wheelchairAccessible: true,
+    ebtAccepted: false,
     operator: {
       name: 'Operator David',
       avatar: 'https://i.pravatar.cc/150?u=op_david',

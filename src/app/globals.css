@@ -1,22 +1,42 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: #ffffff;
-  --color-foreground: #171717;
-  --color-primary: #13ec5b;
-  --color-primary-hover: #0fd650;
-  --color-bg-light: #f6f8f6;
-  --color-bg-dark: #102216;
-  --color-surface-dark: #1a2e22;
+  /* Light theme palette (default) */
+  --color-background: #f9fafb; /* page background */
+  --color-foreground: #020617; /* main text */
+
+  --color-primary: #16a34a; /* green-600 */
+  --color-primary-hover: #15803d; /* green-700 */
+  --color-secondary: #0ea5e9; /* sky-500 */
+  --color-secondary-hover: #0284c7; /* sky-600 */
+
+  /* Surface helpers */
+  --background: #f9fafb;
+  --foreground: #020617;
+  --color-bg-light: #ffffff; /* cards / panels */
+  --color-bg-dark: #e5e7eb; /* subtle light borders / stripes */
+  --color-surface-dark: #0f172a; /* for mixed dark-on-light sections */
+
   --font-sans: var(--font-manrope);
   --font-mono: var(--font-noto-sans);
 }
 
 .dark {
-  --color-background: #0a0a0a;
-  --color-foreground: #ededed;
-  --background: #0a0a0a;
-  --foreground: #ededed;
+  /* Dark theme palette */
+  --color-background: #020617; /* slate-950 */
+  --color-foreground: #e5e7eb; /* gray-200 */
+
+  --color-primary: #22c55e; /* green-500 */
+  --color-primary-hover: #16a34a; /* green-600 */
+  --color-secondary: #38bdf8; /* sky-400 */
+  --color-secondary-hover: #0ea5e9; /* sky-500 */
+
+  /* Surface helpers for dark */
+  --background: #020617;
+  --foreground: #e5e7eb;
+  --color-bg-light: #0b1120; /* card background */
+  --color-bg-dark: #020617; /* page background */
+  --color-surface-dark: #020617; /* deep sections/footer */
 }
 
 body {
