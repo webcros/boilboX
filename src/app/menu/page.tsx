@@ -1,6 +1,7 @@
 // Remove the client directive since we'll fetch data server-side
 import { getMeals, getMealsByCategory } from '@/lib/sanity-queries';
 import { Meal } from '@/lib/types';
+import FiltersClient from './FiltersClient';
 
 // We'll export generateMetadata for dynamic metadata generation
 export async function generateMetadata() {
@@ -55,21 +56,7 @@ export default async function MenuPage({
         </div>
         
         {/* Category Filters */}
-        <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-2">
-          {categories.map((cat) => (
-            <a
-              key={cat}
-              href={`?category=${cat}`}
-              className={`flex h-11 shrink-0 items-center justify-center px-6 rounded-full text-sm font-bold transition-all text-white bg-primary hover:bg-primary-hover ${
-                selectedCategory === cat 
-                ? 'dark:bg-primary dark:text-bg-dark dark:hover:bg-primary' 
-                : 'border border-gray-200 dark:bg-surface-dark dark:border-white/10 hover:border-primary dark:hover:bg-surface-dark'
-              }`}
-            >
-              {cat}
-            </a>
-          ))}
-        </div>
+        <FiltersClient categories={categories} selectedCategory={selectedCategory} />
       </div>
 
       {/* Empty/Error State */}

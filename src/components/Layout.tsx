@@ -111,7 +111,7 @@ const Footer = () => (
         <div className="col-span-2 md:col-span-1">
           <div className="flex items-center gap-2 mb-4">
             <span className="material-symbols-outlined text-primary">soup_kitchen</span>
-            <span className="font-bold text-lg">BoilboX</span>
+            <span className="font-bold text-lg text-white">BoilboX</span>
           </div>
           <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 max-w-xs">
             Redefining fast food with 100% boiled, oil-free meals for a healthier tomorrow.
