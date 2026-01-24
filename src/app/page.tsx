@@ -12,7 +12,7 @@ export const metadata = generatePageMetadata({
 export default async function Home() {
   // Fetch featured meals from Sanity (fallback to empty array if error)
   const [featuredMeals, testimonials] = await Promise.all([
-    getFeaturedMeals(3).catch(() => []),
+    getFeaturedMeals().catch(() => []),
     getTestimonials().catch(() => []),
   ]);
   

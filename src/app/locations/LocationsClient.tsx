@@ -1,17 +1,12 @@
 "use client";
 
 import { useMemo, useState } from 'react';
-import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
 import { KioskLocation } from '@/lib/types';
+import MapPanel from './MapPanel';
 
 interface LocationsClientProps {
   locations: KioskLocation[];
 }
-
-const mapContainerStyle = {
-  width: '100%',
-  height: '100%',
-};
 
 export function LocationsClient({ locations }: LocationsClientProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -23,10 +18,6 @@ export function LocationsClient({ locations }: LocationsClientProps) {
 
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
-  const { isLoaded } = useJsApiLoader({
-    id: 'boilobox-map',
-    googleMapsApiKey: apiKey || '',
-  });
 
   const filteredLocations = useMemo(() => {
     return locations.filter((loc) => {
@@ -224,49 +215,30 @@ export function LocationsClient({ locations }: LocationsClientProps) {
       {/* Map Content */}
       <div className="hidden lg:block flex-1 relative bg-gray-100 dark:bg-bg-dark/50">
         <div className="absolute inset-0">
-          {apiKey && isLoaded ? (
-            <GoogleMap
-              mapContainerStyle={mapContainerStyle}
+          {apiKey ? (
+            <MapPanel
+              apiKey={apiKey}
               center={center}
-              zoom={12}
-              options={{
-                disableDefaultUI: true,
-                styles: [
-                  {
-                    featureType: 'all',
-                    elementType: 'labels.text.fill',
-                    stylers: [{ color: '#6b7280' }],
-                  },
-                  {
-                    featureType: 'poi',
-                    elementType: 'labels.text',
-                    stylers: [{ visibility: 'off' }],
-                  },
-                ],
-              }}
-              onLoad={(map) => setMapInstance(map)}
-            >
-              {locations.map((loc) => (
-                <Marker
-                  key={loc.id}
-                  position={{ lat: loc.lat, lng: loc.lng }}
-                  onClick={() => handleLocationClick(loc)}
-                  icon={
-                    selectedId === loc.id
-                      ? undefined
-                      : undefined
-                  }
-                />
-              ))}
-            </GoogleMap>
+              locations={locations}
+              selectedId={selectedId}
+              onMapLoad={(map) => setMapInstance(map)}
+              onMarkerClick={handleLocationClick}
+            />
           ) : (
             <div
-              className="w-full h-full bg-cover bg-center grayscale opacity-50 contrast-125"
+              className="w-full h-full bg-cover bg-center grayscale opacity-50 contrast-125 flex items-center justify-center"
               style={{
                 backgroundImage:
                   'url("https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?auto=format&fit=crop&q=80&w=1200")',
               }}
-            />
+            >
+              <div className="bg-white/90 dark:bg-surface-dark/90 border border-gray-100 dark:border-white/10 rounded-2xl px-6 py-4 text-center shadow-xl">
+                <p className="text-sm font-bold text-gray-700 dark:text-gray-200">Map preview unavailable</p>
+                <p className="text-xs text-gray-400 dark:text-gray-300">
+                  Add a Google Maps API key to enable the live map.
+                </p>
+              </div>
+            </div>
           )}
         </div>
         <div className="pointer-events-none absolute inset-0 bg-primary/10 mix-blend-multiply"></div>

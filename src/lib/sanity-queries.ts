@@ -33,7 +33,7 @@ const mealFields = `
 // GROQ query to fetch all meals
 // Includes meals where `available` is either true or not set (for older documents)
 // and only meals with a defined image asset so menu cards always have an image
-export const mealsQuery = `*[_type == "meal" && (!defined(available) || available == true)] | order(order asc, name asc) {${mealFields}}`;
+export const mealsQuery = `*[_type == "meal" && ${publishedFilter} && (!defined(available) || available == true)] | order(order asc, name asc) {${mealFields}}`;
 
 // Fetch all meals from Sanity
 export async function getMeals(): Promise<Meal[]> {
@@ -44,8 +44,8 @@ export async function getMeals(): Promise<Meal[]> {
 // Fetch featured meals (for homepage)
 export async function getFeaturedMeals(limit: number = 3): Promise<Meal[]> {
   try {
-    const query = `*[_type == "meal" && ${publishedFilter} && defined(slug.current) && (!defined(available) || available == true) && defined(image.asset)]
-      | order(coalesce(featured, false) desc, _createdAt desc) [0...${limit}] {${mealFields}}`;
+    const query = `*[_type == "meal" && ${publishedFilter} && (!defined(available) || available == true)]
+      | order(coalesce(publishedAt, _createdAt) desc) {${mealFields}}`;
 
     const meals = await sanityClient.fetch(query);
     return meals.map(mapMeal);
@@ -56,7 +56,7 @@ export async function getFeaturedMeals(limit: number = 3): Promise<Meal[]> {
 
 // Fetch meals by category
 export async function getMealsByCategory(category: string): Promise<Meal[]> {
-  const query = `*[_type == "meal" && category == $category && (!defined(available) || available == true)] | order(order asc, name asc) {${mealFields}}`;
+  const query = `*[_type == "meal" && ${publishedFilter} && category == $category && (!defined(available) || available == true)] | order(order asc, name asc) {${mealFields}}`;
 
   const meals = await sanityClient.fetch(query, { category });
   return meals.map(mapMeal);
