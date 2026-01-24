@@ -263,22 +263,24 @@ export function LocationsClient({ locations }: LocationsClientProps) {
         </div>
 
         {/* Map Controls wired to Google Maps */}
-        <div className="absolute top-8 right-8 flex flex-col gap-2">
-          <button
-            className="w-12 h-12 rounded-xl bg-white dark:bg-surface-dark flex items-center justify-center shadow-2xl hover:bg-gray-50 dark:hover:bg-bg-dark transition-colors"
-            type="button"
-            onClick={() => handleZoom('in')}
-          >
-            <span className="material-symbols-outlined">add</span>
-          </button>
-          <button
-            className="w-12 h-12 rounded-xl bg-white dark:bg-surface-dark flex items-center justify-center shadow-2xl hover:bg-gray-50 dark:hover:bg-bg-dark transition-colors"
-            type="button"
-            onClick={() => handleZoom('out')}
-          >
-            <span className="material-symbols-outlined">remove</span>
-          </button>
-        </div>
+        {apiKey && (
+          <div className="absolute top-8 right-8 flex flex-col gap-2">
+            <button
+              className="w-12 h-12 rounded-xl bg-white dark:bg-surface-dark flex items-center justify-center shadow-2xl hover:bg-gray-50 dark:hover:bg-bg-dark transition-colors"
+              type="button"
+              onClick={() => handleZoom('in')}
+            >
+              <span className="material-symbols-outlined">add</span>
+            </button>
+            <button
+              className="w-12 h-12 rounded-xl bg-white dark:bg-surface-dark flex items-center justify-center shadow-2xl hover:bg-gray-50 dark:hover:bg-bg-dark transition-colors"
+              type="button"
+              onClick={() => handleZoom('out')}
+            >
+              <span className="material-symbols-outlined">remove</span>
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
