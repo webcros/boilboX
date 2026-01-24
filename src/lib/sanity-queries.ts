@@ -13,7 +13,7 @@ const publishedFilter = '!(_id in path("drafts.**"))';
 
 const mealFields = `
   _id,
-  "slug": slug.current,
+  "slug": coalesce(slug.current, _id),
   name,
   description,
   price,
@@ -21,7 +21,7 @@ const mealFields = `
   protein,
   carbs,
   fats,
-  "image": image.asset->url,
+  "image": coalesce(image.asset->url, ""),
   "imageAlt": image.alt,
   category,
   tags,
@@ -33,16 +33,12 @@ const mealFields = `
 // GROQ query to fetch all meals
 // Includes meals where `available` is either true or not set (for older documents)
 // and only meals with a defined image asset so menu cards always have an image
-export const mealsQuery = `*[_type == "meal" && ${publishedFilter} && defined(slug.current) && (!defined(available) || available == true) && defined(image.asset)] | order(order asc, name asc) {${mealFields}}`;
+export const mealsQuery = `*[_type == "meal" && (!defined(available) || available == true)] | order(order asc, name asc) {${mealFields}}`;
 
 // Fetch all meals from Sanity
 export async function getMeals(): Promise<Meal[]> {
-  try {
-    const meals = await sanityClient.fetch(mealsQuery);
-    return meals.map(mapMeal);
-  } catch {
-    return [];
-  }
+  const meals = await sanityClient.fetch(mealsQuery);
+  return meals.map(mapMeal);
 }
 
 // Fetch featured meals (for homepage)
@@ -60,19 +56,15 @@ export async function getFeaturedMeals(limit: number = 3): Promise<Meal[]> {
 
 // Fetch meals by category
 export async function getMealsByCategory(category: string): Promise<Meal[]> {
-  try {
-    const query = `*[_type == "meal" && ${publishedFilter} && defined(slug.current) && category == $category && (!defined(available) || available == true) && defined(image.asset)] | order(order asc, name asc) {${mealFields}}`;
+  const query = `*[_type == "meal" && category == $category && (!defined(available) || available == true)] | order(order asc, name asc) {${mealFields}}`;
 
-    const meals = await sanityClient.fetch(query, { category });
-    return meals.map(mapMeal);
-  } catch {
-    return [];
-  }
+  const meals = await sanityClient.fetch(query, { category });
+  return meals.map(mapMeal);
 }
 
 export async function getMealBySlug(slug: string): Promise<Meal | null> {
   try {
-    const query = `*[_type == "meal" && ${publishedFilter} && slug.current == $slug][0]{${mealFields}}`;
+    const query = `*[_type == "meal" && (slug.current == $slug || _id == $slug)][0]{${mealFields}}`;
     const meal = await sanityClient.fetch(query, { slug });
     return meal ? mapMeal(meal) : null;
   } catch {
@@ -82,7 +74,7 @@ export async function getMealBySlug(slug: string): Promise<Meal | null> {
 
 export async function getMealSlugs(): Promise<string[]> {
   try {
-    const query = `*[_type == "meal" && ${publishedFilter} && defined(slug.current)].slug.current`;
+    const query = `*[_type == "meal" && defined(slug.current)].slug.current`;
     return await sanityClient.fetch(query);
   } catch {
     return [];

@@ -34,10 +34,19 @@ export default async function MenuPage({
   
   // Fetch meals server-side
   let meals: Meal[] = [];
+  let errorMessage: string | null = null;
   if (selectedCategory === 'All' || !selectedCategory) {
-    meals = await getMeals();
+    try {
+      meals = await getMeals();
+    } catch (error) {
+      errorMessage = 'We could not load the menu right now. Please try again shortly.';
+    }
   } else {
-    meals = await getMealsByCategory(selectedCategory);
+    try {
+      meals = await getMealsByCategory(selectedCategory);
+    } catch (error) {
+      errorMessage = 'We could not load this category right now. Please try again shortly.';
+    }
   }
 
   const categories = ['All', 'High Protein', 'Vegan', 'Low Carb', 'Heart Healthy', 'Balanced'];
@@ -55,8 +64,16 @@ export default async function MenuPage({
         <FiltersClient categories={categories} selectedCategory={selectedCategory} />
       </div>
 
-      {/* Empty/Error State */}
-      {meals.length === 0 && (
+      {/* Error State */}
+      {errorMessage && (
+        <div className="text-center py-20">
+          <p className="text-gray-500 text-lg mb-2">Menu unavailable</p>
+          <p className="text-gray-400 text-sm">{errorMessage}</p>
+        </div>
+      )}
+
+      {/* Empty State */}
+      {!errorMessage && meals.length === 0 && (
         <div className="text-center py-20">
           <p className="text-gray-500 text-lg mb-2">No meals found</p>
           <p className="text-gray-400 text-sm">
@@ -68,7 +85,7 @@ export default async function MenuPage({
       )}
 
       {/* Grid */}
-      {meals.length > 0 && (
+      {!errorMessage && meals.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
           {meals.map((meal) => (
             <MenuCard key={meal.id} meal={meal} />

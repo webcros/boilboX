@@ -42,11 +42,17 @@ export default function MenuCard({ meal }: MenuCardProps) {
       className="relative flex flex-col bg-white dark:bg-surface-dark rounded-3xl overflow-hidden border border-gray-100 dark:border-white/10 hover:shadow-xl transition-all duration-500 group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 active:scale-[0.99]"
     >
       <div className="aspect-[4/3] relative overflow-hidden">
-        <img
-          src={meal.image}
-          alt={meal.imageAlt || meal.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-        />
+        {meal.image ? (
+          <img
+            src={meal.image}
+            alt={meal.imageAlt || meal.name}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+          />
+        ) : (
+          <div className="w-full h-full bg-gray-100 dark:bg-white/5 flex items-center justify-center text-gray-400 text-xs font-semibold uppercase tracking-[0.18em]">
+            Image coming soon
+          </div>
+        )}
         <div className="absolute inset-x-5 top-5 z-10 flex flex-wrap gap-2">
           <span className="px-3 py-1 rounded-full bg-white/90 dark:bg-black/80 backdrop-blur-md text-[10px] font-semibold uppercase tracking-[0.16em] text-primary">
             {meal.category}
