@@ -168,7 +168,9 @@ export function LocationsClient({ locations }: LocationsClientProps) {
                   {loc.status}
                 </span>
                 <span className="text-[10px] font-black text-gray-400 dark:text-gray-300 uppercase tracking-widest">
-                  {loc.status === 'Open Now' ? `Closes ${loc.closingTime}` : loc.status}
+                  {loc.status === 'Open Now' && loc.closingTime
+                    ? `Closes ${loc.closingTime}`
+                    : loc.status}
                 </span>
                 <span className="text-[10px] font-black text-gray-300 ml-auto">{loc.distance}</span>
               </div>

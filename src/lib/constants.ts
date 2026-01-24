@@ -3,6 +3,7 @@ import { Meal, KioskLocation, Testimonial } from './types';
 export const MEALS: Meal[] = [
   {
     id: '1',
+    slug: 'poached-chicken-greens',
     name: 'Poached Chicken & Greens',
     description: 'Tender chicken breast poached in ginger broth, served with bok choy and broccoli.',
     price: 12.50,
@@ -14,6 +15,7 @@ export const MEALS: Meal[] = [
   },
   {
     id: '2',
+    slug: 'tofu-mushroom-broth',
     name: 'Tofu & Mushroom Broth',
     description: 'Silken tofu and shiitake mushrooms in a 12-hour vegetable reduction.',
     price: 10.00,
@@ -25,6 +27,7 @@ export const MEALS: Meal[] = [
   },
   {
     id: '3',
+    slug: 'harvest-bowl',
     name: 'Harvest Bowl',
     description: 'Boiled sweet potato mash, corn, peas, and a hint of cracked black pepper.',
     price: 11.00,
@@ -37,6 +40,7 @@ export const MEALS: Meal[] = [
   },
   {
     id: '4',
+    slug: 'steamed-salmon-quinoa',
     name: 'Steamed Salmon & Quinoa',
     description: 'Fresh Atlantic salmon, quinoa, steamed kale, carrots, lemon zest.',
     price: 14.50,

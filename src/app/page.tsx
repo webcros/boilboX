@@ -1,6 +1,5 @@
 import Link from 'next/link';
-import { TESTIMONIALS } from '@/lib/constants';
-import { getFeaturedMeals } from '@/lib/sanity-queries';
+import { getFeaturedMeals, getTestimonials } from '@/lib/sanity-queries';
 import { generatePageMetadata } from '@/lib/seo';
 
 export const metadata = generatePageMetadata({
@@ -12,7 +11,10 @@ export const metadata = generatePageMetadata({
 
 export default async function Home() {
   // Fetch featured meals from Sanity (fallback to empty array if error)
-  const featuredMeals = await getFeaturedMeals(3).catch(() => []);
+  const [featuredMeals, testimonials] = await Promise.all([
+    getFeaturedMeals(3).catch(() => []),
+    getTestimonials().catch(() => []),
+  ]);
   
   return (
     <div className="animate-fade-in">
@@ -62,16 +64,18 @@ export default async function Home() {
                 key={meal.id}
                 className="bg-white dark:bg-surface-dark rounded-[2rem] overflow-hidden border border-gray-100 dark:border-white/5 hover:shadow-2xl transition-all group"
               >
-                <div className="aspect-[4/3] relative overflow-hidden">
-                  <img
-                    src={meal.image}
-                    alt={meal.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                  />
-                  <div className="absolute top-4 left-4 px-3 py-1 bg-white/90 dark:bg-black/80 backdrop-blur-sm rounded-full text-[10px] font-black uppercase tracking-widest">
-                    {meal.category}
+                <Link href={`/menu/${meal.slug}`} className="block">
+                  <div className="aspect-[4/3] relative overflow-hidden">
+                    <img
+                      src={meal.image}
+                      alt={meal.imageAlt || meal.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    />
+                    <div className="absolute top-4 left-4 px-3 py-1 bg-white/90 dark:bg-black/80 backdrop-blur-sm rounded-full text-[10px] font-black uppercase tracking-widest">
+                      {meal.category}
+                    </div>
                   </div>
-                </div>
+                </Link>
                 <div className="p-8">
                   <div className="flex justify-between items-start mb-2">
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white">{meal.name}</h3>
@@ -87,9 +91,13 @@ export default async function Home() {
                         <span className="material-symbols-outlined !text-sm">fitness_center</span> {meal.protein} Prot
                       </span>
                     </div>
-                    <button className="w-10 h-10 rounded-full bg-primary hover:bg-primary-hover text-bg-dark flex items-center justify-center transition-transform hover:rotate-90">
+                    <Link
+                      href={`/order?item=${meal.slug}`}
+                      className="w-10 h-10 rounded-full bg-primary hover:bg-primary-hover text-bg-dark flex items-center justify-center transition-transform hover:rotate-90"
+                      aria-label={`Add ${meal.name} to order`}
+                    >
                       <span className="material-symbols-outlined">add</span>
-                    </button>
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -201,19 +209,23 @@ export default async function Home() {
       <section className="py-24 px-4 md:px-10 lg:px-40">
         <h2 className="text-3xl font-black mb-16 text-center">Real Stories, Real Health</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {TESTIMONIALS.map((t) => (
-            <div key={t.id} className="bg-white dark:bg-surface-dark p-10 rounded-[2rem] shadow-sm relative group">
-              <span className="material-symbols-outlined text-primary/10 text-[100px] absolute top-4 right-4 leading-none select-none">format_quote</span>
-              <p className="text-xl font-medium leading-relaxed mb-8 relative z-10 italic text-gray-900 dark:text-white">"{t.quote}"</p>
-              <div className="flex items-center gap-4 relative z-10">
-                <img src={t.avatar} alt={t.name} className="w-12 h-12 rounded-full ring-2 ring-primary/20" />
-                <div>
-                  <h4 className="font-black text-gray-900 dark:text-white">{t.name}</h4>
-                  <p className="text-xs text-gray-500 dark:text-gray-300 uppercase tracking-widest">{t.role}</p>
+          {testimonials.length > 0 ? (
+            testimonials.map((t) => (
+              <div key={t.id} className="bg-white dark:bg-surface-dark p-10 rounded-[2rem] shadow-sm relative group">
+                <span className="material-symbols-outlined text-primary/10 text-[100px] absolute top-4 right-4 leading-none select-none">format_quote</span>
+                <p className="text-xl font-medium leading-relaxed mb-8 relative z-10 italic text-gray-900 dark:text-white">"{t.quote}"</p>
+                <div className="flex items-center gap-4 relative z-10">
+                  <img src={t.avatar} alt={t.name} className="w-12 h-12 rounded-full ring-2 ring-primary/20" />
+                  <div>
+                    <h4 className="font-black text-gray-900 dark:text-white">{t.name}</h4>
+                    <p className="text-xs text-gray-500 dark:text-gray-300 uppercase tracking-widest">{t.role}</p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            <div className="col-span-2 text-center text-gray-500">No testimonials available yet.</div>
+          )}
         </div>
       </section>
 

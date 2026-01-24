@@ -61,10 +61,20 @@ export default function DishForm({ onClose, onSuccess }: DishFormProps) {
         throw new Error('Missing Sanity write token. Please configure NEXT_PUBLIC_SANITY_WRITE_TOKEN in your environment variables.');
       }
 
+      const slugValue = formData.name
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)+/g, '');
+
       // Create the dish document in Sanity
       const newDish = {
         _type: 'meal',
         name: formData.name,
+        slug: {
+          _type: 'slug',
+          current: slugValue,
+        },
         description: formData.description,
         price: formData.price,
         calories: formData.calories,
@@ -91,7 +101,6 @@ export default function DishForm({ onClose, onSuccess }: DishFormProps) {
       
       onSuccess();
     } catch (err: any) {
-      console.error('Error creating dish:', err);
       let errorMessage = 'Failed to create dish. Please try again.';
       
       if (err.message.includes('write token')) {

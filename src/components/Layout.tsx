@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTheme } from '@/context/ThemeContext';
@@ -23,8 +24,15 @@ const Navbar = () => {
     <nav className="sticky top-0 z-50 w-full bg-white/90 dark:bg-bg-dark/90 backdrop-blur-md border-b border-gray-100 dark:border-white/10">
       <div className="max-w-7xl mx-auto px-4 md:px-10 flex items-center justify-between h-20">
         <Link href="/" className="flex items-center gap-2 group">
-          <div className="text-primary group-hover:scale-110 transition-transform">
-            <span className="material-symbols-outlined !text-[32px]" style={{ fontVariationSettings: "'FILL' 1" }}>soup_kitchen</span>
+          <div className="group-hover:scale-110 transition-transform">
+            <Image
+              src="/updated_logo.png"
+              alt="BoiledboX logo"
+              width={120}
+              height={32}
+              className="h-8 w-auto"
+              priority
+            />
           </div>
           <h2 className="text-xl font-bold tracking-tight">BoilboX</h2>
         </Link>
@@ -110,7 +118,13 @@ const Footer = () => (
       <div className="grid grid-cols-2 md:grid-cols-4 gap-12 mb-16">
         <div className="col-span-2 md:col-span-1">
           <div className="flex items-center gap-2 mb-4">
-            <span className="material-symbols-outlined text-primary">soup_kitchen</span>
+            <Image
+              src="/updated_logo.png"
+              alt="BoiledboX logo"
+              width={96}
+              height={24}
+              className="h-6 w-auto"
+            />
             <span className="font-bold text-lg text-white">BoilboX</span>
           </div>
           <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 max-w-xs">

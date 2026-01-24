@@ -1,4 +1,8 @@
-export default function PartnerPage() {
+import { getPartners } from '@/lib/sanity-queries';
+
+export default async function PartnerPage() {
+  const partners = await getPartners();
+
   return (
     <div className="px-4 md:px-10 lg:px-40 py-24 animate-fade-in">
       <div className="max-w-6xl mx-auto">
@@ -36,6 +40,68 @@ export default function PartnerPage() {
               guesswork.
             </p>
           </div>
+        </section>
+
+        <section className="mb-16">
+          <div className="flex items-end justify-between mb-8">
+            <div>
+              <h2 className="text-2xl md:text-3xl font-black">Featured Partners</h2>
+              <p className="text-sm text-gray-500 dark:text-gray-300">Trusted organizations helping us scale clean eating.</p>
+            </div>
+          </div>
+          {partners.length === 0 ? (
+            <div className="text-center py-16 bg-white dark:bg-surface-dark border border-gray-100 dark:border-white/10 rounded-3xl">
+              <p className="text-gray-500">No partners published yet.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {partners.map((partner) => (
+                <div key={partner.id} className="bg-white dark:bg-surface-dark border border-gray-100 dark:border-white/10 rounded-3xl p-8">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-14 h-14 rounded-2xl overflow-hidden border border-gray-100 dark:border-white/10">
+                      <img src={partner.logo} alt={partner.name} className="w-full h-full object-cover" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-black">{partner.name}</h3>
+                      <p className="text-xs uppercase tracking-[0.18em] text-gray-400">{partner.type}</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">{partner.description}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {partner.website && (
+                      <a
+                        href={partner.website}
+                        className="text-primary font-bold text-xs uppercase tracking-[0.16em]"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Visit Website
+                      </a>
+                    )}
+                    {partner.socialLinks?.linkedin && (
+                      <a
+                        href={partner.socialLinks.linkedin}
+                        className="text-primary font-bold text-xs uppercase tracking-[0.16em]"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        LinkedIn
+                      </a>
+                    )}
+                  </div>
+                  {partner.testimonials && partner.testimonials.length > 0 && (
+                    <div className="mt-6 bg-primary/5 border border-primary/10 rounded-2xl p-4 text-sm text-gray-600 dark:text-gray-300">
+                      <p className="font-semibold mb-2">Partner spotlight</p>
+                      <p className="italic">"{partner.testimonials[0].quote}"</p>
+                      <p className="text-xs uppercase tracking-[0.18em] text-gray-400 mt-2">
+                        {partner.testimonials[0].author}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </section>
 
         <section className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-16 items-start">

@@ -1,5 +1,6 @@
-import { redirect } from 'next/navigation';
 import { generatePageMetadata } from '@/lib/seo';
+import { getMealBySlug } from '@/lib/sanity-queries';
+import OrderClient from './OrderClient';
 
 export const metadata = generatePageMetadata({
   title: "Order | BoilboX",
@@ -8,8 +9,15 @@ export const metadata = generatePageMetadata({
   type: "website"
 });
 
-export default function OrderPage() {
-  redirect('/locations');
+export default async function OrderPage({
+  searchParams,
+}: {
+  searchParams?: { [key: string]: string | string[] | undefined };
+}) {
+  const item = searchParams?.item?.toString();
+  const meal = item ? await getMealBySlug(item) : null;
+
+  return <OrderClient meal={meal} />;
 }
 
 
