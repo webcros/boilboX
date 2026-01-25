@@ -84,6 +84,13 @@ body {
 }
 
 @layer base {
+  html:not(.dark) .dark\:bg-surface-dark :is(h1, h2, h3, h4, p, span, a, button, label),
+  html:not(.dark) .dark\:bg-surface-dark :is(svg, i, strong, em) {
+    @apply text-white;
+  }
+}
+
+@layer base {
   html:not(.dark) .dark\:bg-surface-dark h2 {
     @apply text-white;
   }
