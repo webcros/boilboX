@@ -71,7 +71,7 @@ export default async function Home() {
                       alt={meal.imageAlt || meal.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     />
-                    <div className="absolute top-4 left-4 px-3 py-1 bg-white/90 dark:bg-black/80 backdrop-blur-sm rounded-full text-[10px] font-black uppercase tracking-widest">
+                    <div className="absolute top-4 left-4 px-3 py-1 bg-primary/15 border border-primary/30 backdrop-blur-sm rounded-full text-[10px] font-black uppercase tracking-widest text-primary">
                       {meal.category}
                     </div>
                   </div>
