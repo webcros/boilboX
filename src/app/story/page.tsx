@@ -14,6 +14,43 @@ export default async function StoryPage() {
           </p>
         </header>
 
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+          {[
+            {
+              title: 'Founding Team',
+              desc: 'A multidisciplinary team built BoilboX to make transparent, boiled meals accessible in everyday spaces.',
+            },
+            {
+              title: 'Mission, Vision, Values',
+              desc: 'Our mission is clean eating at scale. We value transparency, food safety, and local economic impact.',
+            },
+            {
+              title: 'Why Boiled Food',
+              desc: 'Boiling preserves nutrients, avoids excess oil, and delivers consistent, traceable nutrition.',
+            },
+          ].map((item) => (
+            <div key={item.title} className="bg-white dark:bg-surface-dark border border-gray-100 dark:border-white/10 rounded-3xl p-8">
+              <h2 className="text-xl font-black mb-3">{item.title}</h2>
+              <p className="text-sm text-gray-600 dark:text-gray-300">{item.desc}</p>
+            </div>
+          ))}
+        </section>
+
+        <section className="bg-surface-dark text-white rounded-3xl p-10 mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              { title: 'Transparency', desc: 'Live kitchen feeds and verified nutrition for every bowl.' },
+              { title: 'Consistency', desc: 'Mother Kitchen prep ensures every kiosk serves the same quality.' },
+              { title: 'Community', desc: 'Local operators and partners help us scale impact responsibly.' },
+            ].map((value) => (
+              <div key={value.title}>
+                <h3 className="text-lg font-black mb-2 text-primary">{value.title}</h3>
+                <p className="text-sm text-white/80">{value.desc}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
         {stories.length === 0 ? (
           <div className="text-center py-20 bg-white dark:bg-surface-dark border border-gray-100 dark:border-white/10 rounded-3xl">
             <p className="text-gray-500 text-lg mb-2">No stories published yet</p>

@@ -43,6 +43,24 @@ export default async function PartnerPage() {
         </section>
 
         <section className="mb-16">
+          <h2 className="text-2xl md:text-3xl font-black mb-4">Partnership Categories</h2>
+          <div className="flex flex-wrap gap-3">
+            {[
+              'Corporate',
+              'CSR',
+              'Gyms',
+              'Hospitals',
+              'Universities',
+              'NGOs',
+            ].map((cat) => (
+              <span key={cat} className="px-4 py-2 rounded-full border border-gray-200 dark:border-white/10 text-xs font-black uppercase tracking-widest">
+                {cat}
+              </span>
+            ))}
+          </div>
+        </section>
+
+        <section className="mb-16">
           <div className="flex items-end justify-between mb-8">
             <div>
               <h2 className="text-2xl md:text-3xl font-black">Featured Partners</h2>
@@ -154,6 +172,24 @@ export default async function PartnerPage() {
           </div>
         </section>
 
+        <section className="bg-white dark:bg-surface-dark border border-gray-100 dark:border-white/10 rounded-3xl p-10 mb-16">
+          <h2 className="text-2xl md:text-3xl font-black mb-4">Kiosk setup details</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm text-gray-600 dark:text-gray-300">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400 mb-2">Footprint</p>
+              <p>Compact kiosk footprint with low utility requirements and easy placement.</p>
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400 mb-2">Operations</p>
+              <p>BoilboX provides training, daily prep supply, and remote monitoring tools.</p>
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400 mb-2">Launch</p>
+              <p>Turnkey onboarding with branding, marketing support, and localized menus.</p>
+            </div>
+          </div>
+        </section>
+
         <section className="bg-surface-dark text-white border border-gray-100 dark:border-white/10 rounded-3xl p-10 md:p-12 mb-12">
           <h2 className="text-2xl md:text-3xl font-black mb-4">Tell us about your space</h2>
           <p className="text-sm text-white/80 mb-6">
@@ -161,47 +197,82 @@ export default async function PartnerPage() {
             one properly. Share a few details and we&apos;ll get back to you with
             next steps.
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-white">
-            <div className="flex flex-col gap-1">
-              <label className="font-semibold">Name</label>
-              <input
-                className="rounded-xl border border-gray-200 dark:border-white/10 bg-transparent px-3 py-2 outline-none focus:ring-2 focus:ring-primary/40 text-white placeholder:text-white/40"
-                placeholder="Your full name"
-              />
+          <form action="mailto:partners@boilox.com" method="post" encType="text/plain">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-white">
+              <div className="flex flex-col gap-1">
+                <label className="font-semibold">Name</label>
+                <input
+                  className="rounded-xl border border-gray-200 dark:border-white/10 bg-transparent px-3 py-2 outline-none focus:ring-2 focus:ring-primary/40 text-white placeholder:text-white/40"
+                  placeholder="Your full name"
+                  name="name"
+                  required
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="font-semibold">Email</label>
+                <input
+                  className="rounded-xl border border-gray-200 dark:border-white/10 bg-transparent px-3 py-2 outline-none focus:ring-2 focus:ring-primary/40 text-white placeholder:text-white/40"
+                  placeholder="you@example.com"
+                  name="email"
+                  type="email"
+                  required
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="font-semibold">Organization</label>
+                <input
+                  className="rounded-xl border border-gray-200 dark:border-white/10 bg-transparent px-3 py-2 outline-none focus:ring-2 focus:ring-primary/40 text-white placeholder:text-white/40"
+                  placeholder="Company, campus or property name"
+                  name="organization"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="font-semibold">Location / City</label>
+                <input
+                  className="rounded-xl border border-gray-200 dark:border-white/10 bg-transparent px-3 py-2 outline-none focus:ring-2 focus:ring-primary/40 text-white placeholder:text-white/40"
+                  placeholder="Where is the space located?"
+                  name="location"
+                />
+              </div>
+              <div className="flex flex-col gap-1 md:col-span-2">
+                <label className="font-semibold">What kind of partnership are you exploring?</label>
+                <textarea
+                  className="rounded-xl border border-gray-200 dark:border-white/10 bg-transparent px-3 py-2 h-28 outline-none focus:ring-2 focus:ring-primary/40 resize-none text-white placeholder:text-white/40"
+                  placeholder="Share a bit about your space, audience and timelines."
+                  name="notes"
+                  required
+                />
+              </div>
             </div>
-            <div className="flex flex-col gap-1">
-              <label className="font-semibold">Email</label>
-              <input
-                className="rounded-xl border border-gray-200 dark:border-white/10 bg-transparent px-3 py-2 outline-none focus:ring-2 focus:ring-primary/40 text-white placeholder:text-white/40"
-                placeholder="you@example.com"
-              />
-            </div>
-            <div className="flex flex-col gap-1">
-              <label className="font-semibold">Organization</label>
-              <input
-                className="rounded-xl border border-gray-200 dark:border-white/10 bg-transparent px-3 py-2 outline-none focus:ring-2 focus:ring-primary/40 text-white placeholder:text-white/40"
-                placeholder="Company, campus or property name"
-              />
-            </div>
-            <div className="flex flex-col gap-1">
-              <label className="font-semibold">Location / City</label>
-              <input
-                className="rounded-xl border border-gray-200 dark:border-white/10 bg-transparent px-3 py-2 outline-none focus:ring-2 focus:ring-primary/40 text-white placeholder:text-white/40"
-                placeholder="Where is the space located?"
-              />
-            </div>
-            <div className="flex flex-col gap-1 md:col-span-2">
-              <label className="font-semibold">What kind of partnership are you exploring?</label>
-              <textarea
-                className="rounded-xl border border-gray-200 dark:border-white/10 bg-transparent px-3 py-2 h-28 outline-none focus:ring-2 focus:ring-primary/40 resize-none text-white placeholder:text-white/40"
-                placeholder="Share a bit about your space, audience and timelines."
-              />
-            </div>
-          </div>
+            <button
+              type="submit"
+              className="mt-6 h-12 px-6 rounded-xl bg-primary hover:bg-primary-hover text-bg-dark font-extrabold"
+            >
+              Submit Application
+            </button>
+          </form>
           <p className="text-[11px] text-white/60 mt-4">
             This is a simple interest form, not a contract. We&apos;ll only use
             your details to respond to this inquiry.
           </p>
+        </section>
+
+        <section className="bg-white dark:bg-surface-dark border border-gray-100 dark:border-white/10 rounded-3xl p-8 md:p-10 mb-16">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <h2 className="text-2xl md:text-3xl font-black mb-2">Download the partner brochure</h2>
+              <p className="text-sm text-gray-600 dark:text-gray-300">
+                Get the full kiosk specs, partnership timeline, and deployment checklist.
+              </p>
+            </div>
+            <a
+              href="/BoilboX-Partner-Brochure.pdf"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary hover:bg-primary-hover text-bg-dark font-bold"
+            >
+              Download Brochure
+              <span className="material-symbols-outlined text-base">download</span>
+            </a>
+          </div>
         </section>
 
         <section className="bg-surface-dark text-white rounded-3xl p-8 md:p-10 text-center">

@@ -107,6 +107,38 @@ export default async function MenuDetailPage({ params }: MenuDetailPageProps) {
               </Link>
             </div>
           </div>
+          <div className="bg-white dark:bg-surface-dark rounded-3xl p-7 md:p-8 border border-gray-100 dark:border-white/10">
+            <h2 className="text-xl font-black mb-4">Meal Details</h2>
+            <div className="space-y-4 text-sm text-gray-600 dark:text-gray-300">
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-gray-400 mb-1">Ingredients</p>
+                <p>{meal.tags?.length ? meal.tags.join(' • ') : 'Seasonal ingredients vary by recipe. See the nutrition lookup for full details.'}</p>
+              </div>
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-gray-400 mb-1">Portion size</p>
+                <p>Single serving bowl</p>
+              </div>
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-gray-400 mb-1">Benefits</p>
+                <ul className="space-y-2">
+                  {[
+                    'Boiled with zero added oils.',
+                    'Balanced macros for daily energy.',
+                    'Prepared in the Mother Kitchen for consistency.',
+                  ].map((benefit) => (
+                    <li key={benefit} className="flex items-center gap-2">
+                      <span className="material-symbols-outlined text-primary text-base">check_circle</span>
+                      <span>{benefit}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <Link href="/nutrition" className="inline-flex items-center gap-2 text-primary font-bold text-xs uppercase tracking-[0.16em]">
+                View full nutrition
+                <span className="material-symbols-outlined text-base">arrow_forward</span>
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </div>

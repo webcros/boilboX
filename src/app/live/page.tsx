@@ -62,6 +62,21 @@ export default function LiveKitchenPage() {
             </div>
           </div>
 
+          <div className="rounded-[2.5rem] overflow-hidden border border-gray-100 dark:border-white/10 bg-white dark:bg-surface-dark">
+            <div className="aspect-video">
+              <iframe
+                className="w-full h-full"
+                src="https://www.youtube.com/embed/live_stream?channel=UC4R8DWoMoI7CAwX8_LjQHig"
+                title="BoilboX Live Kitchen Stream"
+                allow="autoplay; encrypted-media; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+            <div className="px-6 py-4 text-sm text-gray-500 dark:text-gray-300">
+              Live feed updates throughout service hours. If the stream is offline, check back soon.
+            </div>
+          </div>
+
           <div className="grid grid-cols-2 gap-6">
             <div className="bg-gray-100 dark:bg-surface-dark aspect-video rounded-3xl overflow-hidden relative cursor-pointer group">
               <img src="https://images.unsplash.com/photo-1551218808-94e220e084d2?auto=format&fit=crop&q=80&w=400" className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity" />

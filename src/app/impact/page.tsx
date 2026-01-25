@@ -14,6 +14,52 @@ export default async function ImpactPage() {
           </p>
         </header>
 
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+          {[
+            {
+              title: 'Employment Model',
+              desc: 'We hire and train local operators, creating dependable jobs with growth paths in every kiosk community.',
+            },
+            {
+              title: 'Operator Stories',
+              desc: 'Community partners run daily operations while BoilboX supports training, prep and quality assurance.',
+            },
+            {
+              title: 'Impact Metrics',
+              desc: 'We track meals served, food waste saved, and partner earnings to keep impact measurable and transparent.',
+            },
+          ].map((item) => (
+            <div key={item.title} className="bg-white dark:bg-surface-dark border border-gray-100 dark:border-white/10 rounded-3xl p-8">
+              <h2 className="text-xl font-black mb-3">{item.title}</h2>
+              <p className="text-sm text-gray-600 dark:text-gray-300">{item.desc}</p>
+            </div>
+          ))}
+        </section>
+
+        <section className="bg-surface-dark text-white rounded-3xl p-10 md:p-12 mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              { label: 'Meals donated', value: '50k+' },
+              { label: 'Local operators', value: '180+' },
+              { label: 'Food waste saved', value: '12 tons' },
+            ].map((stat) => (
+              <div key={stat.label} className="text-center">
+                <p className="text-4xl md:text-5xl font-black text-primary mb-2">{stat.value}</p>
+                <p className="text-xs uppercase tracking-[0.18em] text-white/70">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-8 text-center">
+            <Link
+              href="/partner"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary hover:bg-primary-hover text-bg-dark font-bold"
+            >
+              Partner for Impact
+              <span className="material-symbols-outlined text-base">arrow_forward</span>
+            </Link>
+          </div>
+        </section>
+
         {reports.length === 0 ? (
           <div className="text-center py-20 bg-white dark:bg-surface-dark border border-gray-100 dark:border-white/10 rounded-3xl">
             <p className="text-gray-500 text-lg mb-2">No impact reports published yet</p>
