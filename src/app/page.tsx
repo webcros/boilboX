@@ -37,6 +37,13 @@ export default async function Home() {
               <Link href="/menu" className="h-14 px-10 rounded-xl bg-primary hover:bg-primary-hover text-bg-dark text-lg font-bold transition-all transform hover:scale-105 flex items-center justify-center">
                 Order Now
               </Link>
+              <Link href="/locations" className="h-14 px-10 rounded-xl border border-white/30 text-white text-lg font-bold transition-all flex items-center justify-center">
+                Find a Kiosk
+              </Link>
+              <Link href="/partner" className="h-14 px-10 rounded-xl bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/30 text-lg font-bold transition-all flex items-center justify-center gap-2">
+                <span>Partner</span>
+                <span className="material-symbols-outlined">arrow_forward</span>
+              </Link>
               <Link href="/model" className="h-14 px-10 rounded-xl bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/30 text-lg font-bold transition-all flex items-center justify-center gap-2">
                 <span>How it Works</span>
                 <span className="material-symbols-outlined">arrow_forward</span>
@@ -161,7 +168,7 @@ export default async function Home() {
             </Link>
           </div>
           <div className="flex-1 w-full">
-            <div className="relative aspect-video rounded-3xl overflow-hidden shadow-2xl group border-4 border-white dark:border-white/10">
+            <Link href="/live" className="block relative aspect-video rounded-3xl overflow-hidden shadow-2xl group border-4 border-white dark:border-white/10">
               <img src="https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&q=80&w=800" alt="Chef preparing meal" className="w-full h-full object-cover opacity-80" />
               <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/10 transition-all cursor-pointer">
                 <div className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-md border border-white/50 flex items-center justify-center text-white scale-100 group-hover:scale-110 transition-all">
@@ -171,7 +178,7 @@ export default async function Home() {
               <div className="absolute bottom-6 right-6 px-3 py-1.5 bg-black/60 backdrop-blur rounded-lg flex items-center gap-2 text-white font-mono text-xs">
                 <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span> REC
               </div>
-            </div>
+            </Link>
           </div>
         </div>
       </section>
@@ -183,21 +190,29 @@ export default async function Home() {
           <span className="text-primary font-black uppercase tracking-widest text-sm mb-4 block">Our Mission</span>
           <h2 className="text-4xl md:text-6xl font-black mb-16">Meals That Matter</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-16">
-            <div>
-              <div className="text-6xl md:text-8xl font-black text-primary mb-4">50k+</div>
-              <p className="text-xl font-bold mb-2">Meals Donated</p>
-              <p className="text-white/80 text-sm">For every 10 meals sold, we feed a child in need through local partners.</p>
-            </div>
-            <div>
-              <div className="text-6xl md:text-8xl font-black text-primary mb-4">24</div>
-              <p className="text-xl font-bold mb-2">Local Farms</p>
-              <p className="text-white/80 text-sm">We source directly from small-scale organic farmers within 50 miles.</p>
-            </div>
-            <div>
-              <div className="text-6xl md:text-8xl font-black text-primary mb-4">0%</div>
-              <p className="text-xl font-bold mb-2">Food Waste</p>
-              <p className="text-white/80 text-sm">Unsold ingredients are composted or donated to community kitchens daily.</p>
-            </div>
+            {[
+              {
+                value: '50k+',
+                title: 'Meals Donated',
+                desc: 'For every 10 meals sold, we feed a child in need through local partners.',
+              },
+              {
+                value: '24',
+                title: 'Local Farms',
+                desc: 'We source directly from small-scale organic farmers within 50 miles.',
+              },
+              {
+                value: '0%',
+                title: 'Food Waste',
+                desc: 'Unsold ingredients are composted or donated to community kitchens daily.',
+              },
+            ].map((stat) => (
+              <div key={stat.title}>
+                <div className="text-6xl md:text-8xl font-black text-primary mb-4">{stat.value}</div>
+                <p className="text-xl font-bold mb-2">{stat.title}</p>
+                <p className="text-white/80 text-sm">{stat.desc}</p>
+              </div>
+            ))}
           </div>
           <Link href="/impact" className="mt-20 inline-flex items-center gap-2 px-8 py-3 border-2 border-primary text-primary hover:bg-primary hover:text-bg-dark font-black rounded-xl transition-all">
             Read Our Impact Report <span className="material-symbols-outlined">arrow_outward</span>

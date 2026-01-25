@@ -131,7 +131,11 @@ export function LocationsClient({ locations }: LocationsClientProps) {
             <div
               key={loc.id}
               onClick={() => handleLocationClick(loc)}
-              className="p-6 rounded-3xl border border-gray-100 dark:border-white/10 bg-white dark:bg-surface-dark hover:shadow-2xl transition-all cursor-pointer group hover:border-primary/50"
+              className={`p-6 rounded-3xl border bg-white dark:bg-surface-dark hover:shadow-2xl transition-all cursor-pointer group ${
+                selectedId === loc.id
+                  ? 'border-primary/60 shadow-xl'
+                  : 'border-gray-100 dark:border-white/10 hover:border-primary/50'
+              }`}
             >
               <div className="flex justify-between items-start mb-4">
                 <div>

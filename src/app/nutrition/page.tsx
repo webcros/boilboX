@@ -1,6 +1,7 @@
 import { generatePageMetadata } from '@/lib/seo';
 import { getMeals } from '@/lib/sanity-queries';
 import NutritionClient from './NutritionClient';
+import { nutritionFaqSchema, nutritionPageSchema } from './faq-schema';
 
 export const metadata = generatePageMetadata({
   title: "Nutrition Lookup | BoilboX",
@@ -24,6 +25,16 @@ export default async function NutritionPage() {
         </header>
 
         <NutritionClient meals={meals} />
+        <script
+          type="application/ld+json"
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(nutritionFaqSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(nutritionPageSchema) }}
+        />
       </div>
     </div>
   );

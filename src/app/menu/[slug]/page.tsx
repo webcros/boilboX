@@ -32,6 +32,30 @@ export default async function MenuDetailPage({ params }: MenuDetailPageProps) {
     notFound();
   }
 
+  const productSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: meal.name,
+    description: meal.description,
+    image: meal.image,
+    brand: 'BoilboX',
+    category: meal.category,
+    offers: {
+      '@type': 'Offer',
+      priceCurrency: 'USD',
+      price: meal.price.toFixed(2),
+      availability: 'https://schema.org/InStock',
+      url: `https://boilox.com/menu/${meal.slug}`,
+    },
+    additionalProperty: [
+      { '@type': 'PropertyValue', name: 'Calories', value: meal.calories },
+      { '@type': 'PropertyValue', name: 'Protein', value: meal.protein },
+      { '@type': 'PropertyValue', name: 'Carbs', value: meal.carbs },
+      { '@type': 'PropertyValue', name: 'Fats', value: meal.fats ?? 'N/A' },
+      { '@type': 'PropertyValue', name: 'Ingredients', value: meal.tags?.join(', ') ?? 'Seasonal ingredients' },
+    ],
+  };
+
   return (
     <div className="px-4 md:px-10 lg:px-40 py-16 animate-fade-in">
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-12 items-start">
@@ -141,6 +165,11 @@ export default async function MenuDetailPage({ params }: MenuDetailPageProps) {
           </div>
         </div>
       </div>
+      <script
+        type="application/ld+json"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
+      />
     </div>
   );
 }

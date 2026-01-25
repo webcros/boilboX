@@ -1,4 +1,5 @@
 import { getPartners } from '@/lib/sanity-queries';
+import PartnerForm from './PartnerForm';
 
 export default async function PartnerPage() {
   const partners = await getPartners();
@@ -197,64 +198,7 @@ export default async function PartnerPage() {
             one properly. Share a few details and we&apos;ll get back to you with
             next steps.
           </p>
-          <form action="mailto:partners@boilox.com" method="post" encType="text/plain">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-white">
-              <div className="flex flex-col gap-1">
-                <label className="font-semibold">Name</label>
-                <input
-                  className="rounded-xl border border-gray-200 dark:border-white/10 bg-transparent px-3 py-2 outline-none focus:ring-2 focus:ring-primary/40 text-white placeholder:text-white/40"
-                  placeholder="Your full name"
-                  name="name"
-                  required
-                />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="font-semibold">Email</label>
-                <input
-                  className="rounded-xl border border-gray-200 dark:border-white/10 bg-transparent px-3 py-2 outline-none focus:ring-2 focus:ring-primary/40 text-white placeholder:text-white/40"
-                  placeholder="you@example.com"
-                  name="email"
-                  type="email"
-                  required
-                />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="font-semibold">Organization</label>
-                <input
-                  className="rounded-xl border border-gray-200 dark:border-white/10 bg-transparent px-3 py-2 outline-none focus:ring-2 focus:ring-primary/40 text-white placeholder:text-white/40"
-                  placeholder="Company, campus or property name"
-                  name="organization"
-                />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="font-semibold">Location / City</label>
-                <input
-                  className="rounded-xl border border-gray-200 dark:border-white/10 bg-transparent px-3 py-2 outline-none focus:ring-2 focus:ring-primary/40 text-white placeholder:text-white/40"
-                  placeholder="Where is the space located?"
-                  name="location"
-                />
-              </div>
-              <div className="flex flex-col gap-1 md:col-span-2">
-                <label className="font-semibold">What kind of partnership are you exploring?</label>
-                <textarea
-                  className="rounded-xl border border-gray-200 dark:border-white/10 bg-transparent px-3 py-2 h-28 outline-none focus:ring-2 focus:ring-primary/40 resize-none text-white placeholder:text-white/40"
-                  placeholder="Share a bit about your space, audience and timelines."
-                  name="notes"
-                  required
-                />
-              </div>
-            </div>
-            <button
-              type="submit"
-              className="mt-6 h-12 px-6 rounded-xl bg-primary hover:bg-primary-hover text-bg-dark font-extrabold"
-            >
-              Submit Application
-            </button>
-          </form>
-          <p className="text-[11px] text-white/60 mt-4">
-            This is a simple interest form, not a contract. We&apos;ll only use
-            your details to respond to this inquiry.
-          </p>
+          <PartnerForm />
         </section>
 
         <section className="bg-white dark:bg-surface-dark border border-gray-100 dark:border-white/10 rounded-3xl p-8 md:p-10 mb-16">

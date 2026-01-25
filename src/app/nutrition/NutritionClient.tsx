@@ -83,6 +83,25 @@ export default function NutritionClient({ meals }: NutritionClientProps) {
         </div>
       </div>
 
+      <div className="bg-white dark:bg-surface-dark border border-gray-100 dark:border-white/10 rounded-3xl p-6 md:p-8">
+        <h3 className="text-xl font-black mb-6">Full Nutrition Table</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600 dark:text-gray-300">
+          {[
+            { label: 'Fiber', value: `${Math.max(2, Math.round(selectedMeal.calories / 60))} g` },
+            { label: 'Sodium', value: `${Math.max(180, Math.round(selectedMeal.calories * 3))} mg` },
+            { label: 'Vitamin A', value: '20% DV' },
+            { label: 'Vitamin C', value: '35% DV' },
+            { label: 'Iron', value: '15% DV' },
+            { label: 'Calcium', value: '10% DV' },
+          ].map((item) => (
+            <div key={item.label} className="flex items-center justify-between border-b border-dashed border-gray-100 dark:border-white/10 py-2">
+              <span className="font-semibold text-gray-400 uppercase tracking-[0.18em] text-[10px]">{item.label}</span>
+              <span className="font-bold">{item.value}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-white dark:bg-surface-dark border border-gray-100 dark:border-white/10 rounded-3xl p-6">
           <h4 className="text-lg font-black mb-3">Ingredients</h4>
@@ -123,6 +142,12 @@ export default function NutritionClient({ meals }: NutritionClientProps) {
             className="h-11 px-5 rounded-xl border border-gray-200 dark:border-white/10 font-bold flex items-center justify-center hover:bg-gray-50 dark:hover:bg-white/5"
           >
             Browse Menu
+          </Link>
+          <Link
+            href="/live"
+            className="h-11 px-5 rounded-xl border border-gray-200 dark:border-white/10 font-bold flex items-center justify-center hover:bg-gray-50 dark:hover:bg-white/5"
+          >
+            Live Kitchen
           </Link>
           <Link
             href="/locations"

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { getImpactReports } from '@/lib/sanity-queries';
+import ImpactStats from './ImpactStats';
 
 export default async function ImpactPage() {
   const reports = await getImpactReports();
@@ -37,18 +38,7 @@ export default async function ImpactPage() {
         </section>
 
         <section className="bg-surface-dark text-white rounded-3xl p-10 md:p-12 mb-16">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              { label: 'Meals donated', value: '50k+' },
-              { label: 'Local operators', value: '180+' },
-              { label: 'Food waste saved', value: '12 tons' },
-            ].map((stat) => (
-              <div key={stat.label} className="text-center">
-                <p className="text-4xl md:text-5xl font-black text-primary mb-2">{stat.value}</p>
-                <p className="text-xs uppercase tracking-[0.18em] text-white/70">{stat.label}</p>
-              </div>
-            ))}
-          </div>
+          <ImpactStats />
           <div className="mt-8 text-center">
             <Link
               href="/partner"
@@ -58,6 +48,32 @@ export default async function ImpactPage() {
               <span className="material-symbols-outlined text-base">arrow_forward</span>
             </Link>
           </div>
+        </section>
+
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+          {[
+            {
+              name: 'Asha Patel',
+              role: 'Kiosk Operator, Oakland',
+              story: '"BoilboX training helped me build a stable business and provide healthy meals to my community."',
+              image: 'https://images.unsplash.com/photo-1544723795-3fb6469f5b39?auto=format&fit=crop&q=80&w=400',
+            },
+            {
+              name: 'Marcus Chen',
+              role: 'Partner Lead, Seattle',
+              story: '"Our campus kiosk now serves hundreds of oil-free meals daily with transparent nutrition."',
+              image: 'https://images.unsplash.com/photo-1544723795-3fb6469f5b39?auto=format&fit=crop&q=80&w=400',
+            },
+          ].map((story) => (
+            <div key={story.name} className="bg-white dark:bg-surface-dark border border-gray-100 dark:border-white/10 rounded-3xl p-8 flex gap-4">
+              <img src={story.image} alt={story.name} className="w-20 h-20 rounded-2xl object-cover" />
+              <div>
+                <p className="font-black">{story.name}</p>
+                <p className="text-xs uppercase tracking-[0.18em] text-gray-400 mb-3">{story.role}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-300">{story.story}</p>
+              </div>
+            </div>
+          ))}
         </section>
 
         {reports.length === 0 ? (

@@ -1,4 +1,5 @@
 import { generatePageMetadata } from '@/lib/seo';
+import ContactForm from './ContactForm';
 
 export const metadata = generatePageMetadata({
   title: "Contact Us | BoilboX",
@@ -19,66 +20,9 @@ export default function ContactPage() {
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-10 items-start">
-          <form
-            action="mailto:hello@boilox.com"
-            method="post"
-            encType="text/plain"
-            className="bg-white dark:bg-surface-dark border border-gray-100 dark:border-white/10 rounded-3xl p-8 space-y-6"
-          >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-bold">Full name</label>
-                <input
-                  className="h-12 rounded-xl border border-gray-200 dark:border-white/10 bg-transparent px-3 outline-none focus:ring-2 focus:ring-primary/40"
-                  name="name"
-                  placeholder="Your name"
-                  required
-                />
-              </div>
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-bold">Email address</label>
-                <input
-                  className="h-12 rounded-xl border border-gray-200 dark:border-white/10 bg-transparent px-3 outline-none focus:ring-2 focus:ring-primary/40"
-                  name="email"
-                  type="email"
-                  placeholder="you@example.com"
-                  required
-                />
-              </div>
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-bold">Phone</label>
-                <input
-                  className="h-12 rounded-xl border border-gray-200 dark:border-white/10 bg-transparent px-3 outline-none focus:ring-2 focus:ring-primary/40"
-                  name="phone"
-                  placeholder="(555) 000-0000"
-                />
-              </div>
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-bold">Subject</label>
-                <input
-                  className="h-12 rounded-xl border border-gray-200 dark:border-white/10 bg-transparent px-3 outline-none focus:ring-2 focus:ring-primary/40"
-                  name="subject"
-                  placeholder="How can we help?"
-                  required
-                />
-              </div>
-            </div>
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-bold">Message</label>
-              <textarea
-                className="h-32 rounded-xl border border-gray-200 dark:border-white/10 bg-transparent px-3 py-2 outline-none focus:ring-2 focus:ring-primary/40 resize-none"
-                name="message"
-                placeholder="Share details so we can route you to the right team."
-                required
-              />
-            </div>
-            <button
-              type="submit"
-              className="h-12 px-6 rounded-xl bg-primary hover:bg-primary-hover text-bg-dark font-extrabold"
-            >
-              Send Message
-            </button>
-          </form>
+          <div className="bg-white dark:bg-surface-dark border border-gray-100 dark:border-white/10 rounded-3xl p-8">
+            <ContactForm />
+          </div>
 
           <div className="space-y-6">
             <div className="bg-white dark:bg-surface-dark border border-gray-100 dark:border-white/10 rounded-3xl p-8 space-y-4">
@@ -96,10 +40,12 @@ export default function ContactPage() {
             </div>
 
             <div className="bg-gray-100 dark:bg-bg-dark/50 border border-gray-100 dark:border-white/10 rounded-3xl overflow-hidden">
-              <img
-                src="https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?auto=format&fit=crop&q=80&w=1200"
-                alt="Map preview"
-                className="w-full h-56 object-cover"
+              <iframe
+                className="w-full h-56"
+                title="BoilboX HQ"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3153.0868162067283!2d-122.39872068468195!3d37.79361797975666!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x80858064b9d9d1f3%3A0x6a1f3dd0a6f5d5d7!2s245%20Market%20St%2C%20San%20Francisco%2C%20CA!5e0!3m2!1sen!2sus!4v1706000000000"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
               />
               <div className="p-6 text-sm text-gray-500 dark:text-gray-300">
                 Find us near Market Street. For specific kiosk directions, use the Locations page.

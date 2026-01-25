@@ -63,7 +63,7 @@ const Navbar = () => {
             )}
           </button>
           
-          <Link href="/order" className="hidden sm:flex h-10 px-5 items-center justify-center rounded-lg bg-primary hover:bg-primary-hover transition-colors text-bg-dark text-sm font-bold">
+          <Link href="/locations" className="hidden sm:flex h-10 px-5 items-center justify-center rounded-lg bg-primary hover:bg-primary-hover transition-colors text-bg-dark text-sm font-bold">
             Find a Kiosk
           </Link>
           <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="lg:hidden p-2 text-current">
@@ -102,7 +102,7 @@ const Navbar = () => {
                 {link.name}
               </Link>
             ))}
-            <Link href="/order" onClick={() => setIsMenuOpen(false)} className="bg-primary text-bg-dark text-center py-3 rounded-xl font-bold">
+            <Link href="/locations" onClick={() => setIsMenuOpen(false)} className="bg-primary text-bg-dark text-center py-3 rounded-xl font-bold">
               Find a Kiosk
             </Link>
           </div>
@@ -112,65 +112,85 @@ const Navbar = () => {
   );
 };
 
-const Footer = () => (
-  <footer className="bg-white dark:bg-surface-dark border-t border-gray-100 dark:border-white/10 pt-16 pb-8">
-    <div className="max-w-7xl mx-auto px-4 md:px-10">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-12 mb-16">
-        <div className="col-span-2 md:col-span-1">
-          <div className="flex items-center gap-2 mb-4">
-            <Image
-              src="/updated_logo.png"
-              alt="BoiledboX logo"
-              width={96}
-              height={24}
-              className="h-6 w-auto"
-            />
-            <span className="font-bold text-lg text-white">BoilboX</span>
+const Footer = () => {
+  const companyLinks = [
+    { label: 'About Us', href: '/story' },
+    { label: 'Careers', href: '/careers' },
+    { label: 'Impact', href: '/impact' },
+    { label: 'Press', href: '/media' },
+    { label: 'CSR', href: '/csr' },
+  ];
+
+  const supportLinks = [
+    { label: 'Contact', href: '/contact' },
+    { label: 'Nutrition Lookup', href: '/nutrition' },
+    { label: 'Blog', href: '/blog' },
+  ];
+
+  const policyLinks = [
+    { label: 'Privacy Policy', href: '/privacy' },
+    { label: 'Terms of Service', href: '/terms' },
+  ];
+
+  return (
+    <footer className="bg-white dark:bg-surface-dark border-t border-gray-100 dark:border-white/10 pt-16 pb-8">
+      <div className="max-w-7xl mx-auto px-4 md:px-10">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-12 mb-16">
+          <div className="col-span-2 md:col-span-1">
+            <div className="flex items-center gap-2 mb-4">
+              <Image
+                src="/updated_logo.png"
+                alt="BoiledboX logo"
+                width={96}
+                height={24}
+                className="h-6 w-auto"
+              />
+              <span className="font-bold text-lg text-white">BoilboX</span>
+            </div>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 max-w-xs">
+              Redefining fast food with 100% boiled, oil-free meals for a healthier tomorrow.
+            </p>
+            <div className="flex gap-4">
+              <a href="https://instagram.com" className="text-gray-400 hover:text-primary"><span className="material-symbols-outlined">public</span></a>
+              <a href="mailto:hello@boilox.com" className="text-gray-400 hover:text-primary"><span className="material-symbols-outlined">alternate_email</span></a>
+            </div>
           </div>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 max-w-xs">
-            Redefining fast food with 100% boiled, oil-free meals for a healthier tomorrow.
-          </p>
-          <div className="flex gap-4">
-            <a href="#" className="text-gray-400 hover:text-primary"><span className="material-symbols-outlined">public</span></a>
-            <a href="#" className="text-gray-400 hover:text-primary"><span className="material-symbols-outlined">alternate_email</span></a>
+          <div>
+            <h4 className="font-bold mb-4 uppercase text-xs tracking-widest text-gray-400">Company</h4>
+            <ul className="space-y-2 text-sm text-gray-500 dark:text-gray-400">
+              {companyLinks.map((link) => (
+                <li key={link.href}><Link href={link.href} className="hover:text-primary">{link.label}</Link></li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-bold mb-4 uppercase text-xs tracking-widest text-gray-400">Support</h4>
+            <ul className="space-y-2 text-sm text-gray-500 dark:text-gray-400">
+              {supportLinks.map((link) => (
+                <li key={link.href}><Link href={link.href} className="hover:text-primary">{link.label}</Link></li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-bold mb-4 uppercase text-xs tracking-widest text-gray-400">Locations</h4>
+            <div className="rounded-xl overflow-hidden mb-3 aspect-video bg-gray-100 dark:bg-bg-dark">
+              <img src="https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?auto=format&fit=crop&q=80&w=400" alt="Map View" className="w-full h-full object-cover" />
+            </div>
+            <Link href="/locations" className="text-primary text-sm font-bold hover:underline">Find nearest Kiosk</Link>
           </div>
         </div>
-        <div>
-          <h4 className="font-bold mb-4 uppercase text-xs tracking-widest text-gray-400">Company</h4>
-          <ul className="space-y-2 text-sm text-gray-500 dark:text-gray-400">
-            <li><Link href="/story" className="hover:text-primary">About Us</Link></li>
-            <li><a href="#" className="hover:text-primary">Careers</a></li>
-            <li><Link href="/impact" className="hover:text-primary">Impact</Link></li>
-            <li><a href="#" className="hover:text-primary">Press</a></li>
-          </ul>
-        </div>
-        <div>
-          <h4 className="font-bold mb-4 uppercase text-xs tracking-widest text-gray-400">Support</h4>
-          <ul className="space-y-2 text-sm text-gray-500 dark:text-gray-400">
-            <li><Link href="/contact" className="hover:text-primary">Contact</Link></li>
-            <li><a href="#" className="hover:text-primary">FAQs</a></li>
-            <li><Link href="/nutrition" className="hover:text-primary">Nutritional Info</Link></li>
-            <li><a href="#" className="hover:text-primary">Sitemap</a></li>
-          </ul>
-        </div>
-        <div>
-          <h4 className="font-bold mb-4 uppercase text-xs tracking-widest text-gray-400">Locations</h4>
-          <div className="rounded-xl overflow-hidden mb-3 aspect-video bg-gray-100 dark:bg-bg-dark">
-            <img src="https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?auto=format&fit=crop&q=80&w=400" alt="Map View" className="w-full h-full object-cover" />
+        <div className="border-t border-gray-100 dark:border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-gray-400">
+          <p>© 2024 BoilboX Inc. All rights reserved.</p>
+          <div className="flex gap-6 mt-4 md:mt-0">
+            {policyLinks.map((link) => (
+              <Link key={link.href} href={link.href} className="hover:text-primary">{link.label}</Link>
+            ))}
           </div>
-          <Link href="/locations" className="text-primary text-sm font-bold hover:underline">Find nearest Kiosk</Link>
         </div>
       </div>
-      <div className="border-t border-gray-100 dark:border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-gray-400">
-        <p>© 2024 BoilboX Inc. All rights reserved.</p>
-        <div className="flex gap-6 mt-4 md:mt-0">
-          <a href="#" className="hover:text-primary">Privacy Policy</a>
-          <a href="#" className="hover:text-primary">Terms of Service</a>
-        </div>
-      </div>
-    </div>
-  </footer>
-);
+    </footer>
+  );
+};
 
 export const Layout = ({ children }: { children: React.ReactNode }) => (
   <div className="min-h-screen flex flex-col">

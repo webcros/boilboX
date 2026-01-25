@@ -87,6 +87,36 @@ export default function ModelPage() {
           </div>
         </section>
 
+        <section className="mb-16">
+          <div className="flex items-center justify-between flex-wrap gap-4 mb-6">
+            <h2 className="text-2xl md:text-3xl font-black">Flow Diagram</h2>
+            <a href="/live" className="text-primary font-bold text-sm inline-flex items-center gap-2">
+              Visit Live Kitchen <span className="material-symbols-outlined text-base">arrow_forward</span>
+            </a>
+          </div>
+          <div className="bg-white dark:bg-surface-dark border border-gray-100 dark:border-white/10 rounded-3xl p-8">
+            <svg viewBox="0 0 800 180" className="w-full h-auto">
+              <defs>
+                <marker id="arrow" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto">
+                  <path d="M0,0 L0,6 L9,3 z" fill="#16a34a" />
+                </marker>
+              </defs>
+              <rect x="20" y="40" rx="18" ry="18" width="220" height="100" fill="#e5f7ed" stroke="#16a34a" />
+              <text x="130" y="95" textAnchor="middle" fontSize="16" fontWeight="700" fill="#14532d">Mother Kitchen</text>
+
+              <rect x="290" y="40" rx="18" ry="18" width="220" height="100" fill="#e5f7ed" stroke="#16a34a" />
+              <text x="400" y="88" textAnchor="middle" fontSize="16" fontWeight="700" fill="#14532d">Satellite Kiosks</text>
+              <text x="400" y="112" textAnchor="middle" fontSize="12" fill="#14532d">Prep → Boil → Serve</text>
+
+              <rect x="560" y="40" rx="18" ry="18" width="220" height="100" fill="#e5f7ed" stroke="#16a34a" />
+              <text x="670" y="95" textAnchor="middle" fontSize="16" fontWeight="700" fill="#14532d">Customers</text>
+
+              <line x1="240" y1="90" x2="290" y2="90" stroke="#16a34a" strokeWidth="3" markerEnd="url(#arrow)" />
+              <line x1="510" y1="90" x2="560" y2="90" stroke="#16a34a" strokeWidth="3" markerEnd="url(#arrow)" />
+            </svg>
+          </div>
+        </section>
+
         <section className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
           <div className="bg-surface-dark text-white rounded-3xl p-10">
             <h2 className="text-2xl font-black mb-4">Why this model matters</h2>

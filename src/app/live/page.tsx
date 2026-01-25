@@ -1,3 +1,5 @@
+import LiveStatusToggle from './LiveStatusToggle';
+
 export default function LiveKitchenPage() {
   return (
     <div className="px-4 md:px-10 lg:px-40 py-12 animate-fade-in">
@@ -16,6 +18,8 @@ export default function LiveKitchenPage() {
           <p className="text-xl text-gray-500 leading-relaxed max-w-lg">
             Watch our chefs prepare your oil-free meals in real-time. We believe you should see exactly how your food is handled.
           </p>
+
+          <LiveStatusToggle />
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {[
@@ -42,6 +46,23 @@ export default function LiveKitchenPage() {
               <p className="text-gray-500"><span className="font-black text-primary mr-2">BoilboX:</span> "Yes Sarah! Fresh batch starting now."</p>
               <p className="text-gray-500"><span className="font-black text-bg-dark dark:text-white mr-2">Mike T:</span> "Love seeing the hygiene protocols in action!"</p>
             </div>
+          </div>
+
+          <div className="bg-white dark:bg-surface-dark border border-gray-100 dark:border-white/10 rounded-3xl p-6">
+            <h3 className="text-xl font-black mb-3">Hygiene standards</h3>
+            <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
+              {[
+                'Hourly sanitation checks logged by supervisors.',
+                'Filtered water systems validated daily.',
+                'Temperature logs for every prep batch.',
+                'Operator training refreshed monthly.',
+              ].map((item) => (
+                <li key={item} className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-primary text-base">check_circle</span>
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
 

@@ -4,6 +4,27 @@ import { getStories } from '@/lib/sanity-queries';
 export default async function StoryPage() {
   const stories = await getStories();
 
+  const founders = [
+    {
+      name: 'Aarav Mehta',
+      role: 'Co-founder & CEO',
+      bio: 'Built BoilboX to make transparent, oil-free meals accessible in everyday spaces.',
+      image: 'https://images.unsplash.com/photo-1544723795-3fb6469f5b39?auto=format&fit=crop&q=80&w=400',
+    },
+    {
+      name: 'Leena Kapoor',
+      role: 'Co-founder & Culinary Lead',
+      bio: 'Leads recipe development and nutrition verification across the Mother Kitchen.',
+      image: 'https://images.unsplash.com/photo-1544723795-3fb6469f5b39?auto=format&fit=crop&q=80&w=400',
+    },
+    {
+      name: 'Diego Alvarez',
+      role: 'Co-founder & Operations',
+      bio: 'Builds the kiosk playbook that keeps quality consistent across locations.',
+      image: 'https://images.unsplash.com/photo-1544723795-3fb6469f5b39?auto=format&fit=crop&q=80&w=400',
+    },
+  ];
+
   return (
     <div className="px-4 md:px-10 lg:px-40 py-24 animate-fade-in">
       <div className="max-w-6xl mx-auto">
@@ -13,6 +34,51 @@ export default async function StoryPage() {
             Discover the milestones, chapters, and moments that shaped BoilboX.
           </p>
         </header>
+
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+          {founders.map((founder) => (
+            <div key={founder.name} className="bg-white dark:bg-surface-dark border border-gray-100 dark:border-white/10 rounded-3xl p-8">
+              <img src={founder.image} alt={founder.name} className="w-16 h-16 rounded-2xl object-cover mb-4" />
+              <h2 className="text-xl font-black mb-1">{founder.name}</h2>
+              <p className="text-xs uppercase tracking-[0.18em] text-gray-400 mb-3">{founder.role}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-300">{founder.bio}</p>
+            </div>
+          ))}
+        </section>
+
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
+          {[
+            {
+              title: 'Mission',
+              desc: 'Deliver clean, boiled meals with radical transparency so people can trust what they eat.',
+            },
+            {
+              title: 'Vision',
+              desc: 'Make oil-free, nutrient-rich food the default option in every community space.',
+            },
+          ].map((item) => (
+            <div key={item.title} className="bg-white dark:bg-surface-dark border border-gray-100 dark:border-white/10 rounded-3xl p-8">
+              <h2 className="text-xl font-black mb-3">{item.title}</h2>
+              <p className="text-sm text-gray-600 dark:text-gray-300">{item.desc}</p>
+            </div>
+          ))}
+        </section>
+
+        <section className="bg-surface-dark text-white rounded-3xl p-10 mb-16">
+          <h2 className="text-2xl font-black mb-4">Values that guide us</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              { title: 'Transparency', desc: 'Live kitchen feeds and verified nutrition for every bowl.' },
+              { title: 'Consistency', desc: 'Mother Kitchen prep ensures every kiosk serves the same quality.' },
+              { title: 'Community', desc: 'Local operators and partners help us scale impact responsibly.' },
+            ].map((value) => (
+              <div key={value.title}>
+                <h3 className="text-lg font-black mb-2 text-primary">{value.title}</h3>
+                <p className="text-sm text-white/80">{value.desc}</p>
+              </div>
+            ))}
+          </div>
+        </section>
 
         <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
           {[
