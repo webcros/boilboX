@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { KioskLocation } from '@/lib/types';
 import MapPanel from './MapPanel';
 
@@ -15,8 +15,13 @@ export function LocationsClient({ locations }: LocationsClientProps) {
   const [filterWheelchair, setFilterWheelchair] = useState(false);
   const [filterEBT, setFilterEBT] = useState(false);
   const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
+  const [mapFailed, setMapFailed] = useState(false);
 
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+
+  useEffect(() => {
+    setMapFailed(false);
+  }, [apiKey]);
 
 
   const filteredLocations = useMemo(() => {
@@ -68,7 +73,9 @@ export function LocationsClient({ locations }: LocationsClientProps) {
 
   const openDirections = (loc: KioskLocation) => {
     if (typeof window === 'undefined') return;
-    const url = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(loc.address)}`;
+    const hasCoords = Number.isFinite(loc.lat) && Number.isFinite(loc.lng);
+    const destination = hasCoords ? `${loc.lat},${loc.lng}` : loc.address;
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}`;
     window.open(url, '_blank');
   };
 
@@ -148,6 +155,8 @@ export function LocationsClient({ locations }: LocationsClientProps) {
                     e.stopPropagation();
                     openDirections(loc);
                   }}
+                  aria-label="Get Directions"
+                  title="Get Directions"
                   className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform"
                 >
                   <span className="material-symbols-outlined">directions</span>
@@ -219,7 +228,7 @@ export function LocationsClient({ locations }: LocationsClientProps) {
       {/* Map Content */}
       <div className="hidden lg:block flex-1 relative bg-gray-100 dark:bg-bg-dark/50">
         <div className="absolute inset-0">
-          {apiKey ? (
+          {apiKey && !mapFailed ? (
             <MapPanel
               apiKey={apiKey}
               center={center}
@@ -227,6 +236,8 @@ export function LocationsClient({ locations }: LocationsClientProps) {
               selectedId={selectedId}
               onMapLoad={(map) => setMapInstance(map)}
               onMarkerClick={handleLocationClick}
+              onLoadError={() => setMapFailed(true)}
+              onInfoClose={() => setSelectedId(null)}
             />
           ) : (
             <div
@@ -267,7 +278,7 @@ export function LocationsClient({ locations }: LocationsClientProps) {
         </div>
 
         {/* Map Controls wired to Google Maps */}
-        {apiKey && (
+        {apiKey && !mapFailed && mapInstance && (
           <div className="absolute top-8 right-8 flex flex-col gap-2">
             <button
               className="w-12 h-12 rounded-xl bg-white dark:bg-surface-dark flex items-center justify-center shadow-2xl hover:bg-gray-50 dark:hover:bg-bg-dark transition-colors"
