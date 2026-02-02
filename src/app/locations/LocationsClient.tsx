@@ -94,7 +94,7 @@ export function LocationsClient({ locations }: LocationsClientProps) {
               placeholder="Enter zip code, city, or state"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full h-14 pl-12 pr-12 rounded-2xl bg-gray-50 dark:bg-surface-dark border-none focus:ring-2 focus:ring-primary transition-all text-sm font-bold"
+              className="locations-search-input w-full h-14 pl-12 pr-12 rounded-2xl bg-gray-50 dark:bg-surface-dark border-none focus:ring-2 focus:ring-primary transition-all text-sm font-bold"
             />
             <button
               type="button"

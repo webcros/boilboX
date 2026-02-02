@@ -140,10 +140,10 @@ export default function ModelPage() {
               </li>
             </ul>
           </div>
-          <div className="space-y-6 text-sm text-gray-600 dark:text-gray-300">
+          <div className="neon-selection space-y-6 text-sm text-gray-600 dark:text-gray-300">
             <div>
               <h3 className="font-bold mb-2">For guests</h3>
-              <p>
+              <p className="neon-text-glow">
                 Guests get predictable, fully transparent meals that fit into busy
                 lives – they can see ingredients, macros and even the kitchen in
                 real time.
@@ -151,14 +151,14 @@ export default function ModelPage() {
             </div>
             <div>
               <h3 className="font-bold mb-2">For operators</h3>
-              <p>
+              <p className="neon-text-glow">
                 Operators run lean kiosks with less staff, lower capex and a
                 playbook that is built for repeatability rather than hero chefs.
               </p>
             </div>
             <div>
               <h3 className="font-bold mb-2">For communities</h3>
-              <p>
+              <p className="neon-text-glow">
                 Dense kiosk networks make genuinely healthy food accessible in
                 workplaces, campuses, hospitals and transit hubs – not just in
                 premium neighborhoods.
