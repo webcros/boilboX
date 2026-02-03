@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { KioskLocation } from '@/lib/types';
 import MapPanel from './MapPanel';
 
@@ -14,7 +14,8 @@ export function LocationsClient({ locations }: LocationsClientProps) {
   const [filterOpenNow, setFilterOpenNow] = useState(false);
   const [filterWheelchair, setFilterWheelchair] = useState(false);
   const [filterEBT, setFilterEBT] = useState(false);
-  const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null);
+  const mapRef = useRef<google.maps.Map | null>(null);
+  const [mapReady, setMapReady] = useState(false);
   const [mapFailed, setMapFailed] = useState(false);
 
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
@@ -50,24 +51,27 @@ export function LocationsClient({ locations }: LocationsClientProps) {
 
   const handleLocationClick = (loc: KioskLocation) => {
     setSelectedId(loc.id);
-    if (mapInstance) {
-      mapInstance.panTo({ lat: loc.lat, lng: loc.lng });
-      mapInstance.setZoom(14);
+    const map = mapRef.current;
+    if (map) {
+      map.panTo({ lat: loc.lat, lng: loc.lng });
+      map.setZoom(14);
     }
   };
 
   const handleZoom = (direction: 'in' | 'out') => {
-    if (!mapInstance) return;
-    const currentZoom = mapInstance.getZoom() || 12;
-    mapInstance.setZoom(direction === 'in' ? currentZoom + 1 : currentZoom - 1);
+    const map = mapRef.current;
+    if (!map) return;
+    const currentZoom = map.getZoom() || 12;
+    map.setZoom(direction === 'in' ? currentZoom + 1 : currentZoom - 1);
   };
 
   const handleUseMyLocation = () => {
-    if (!navigator.geolocation || !mapInstance) return;
+    const map = mapRef.current;
+    if (!navigator.geolocation || !map) return;
     navigator.geolocation.getCurrentPosition((pos) => {
       const userLatLng = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-      mapInstance.panTo(userLatLng);
-      mapInstance.setZoom(13);
+      map.panTo(userLatLng);
+      map.setZoom(13);
     });
   };
 
@@ -234,7 +238,10 @@ export function LocationsClient({ locations }: LocationsClientProps) {
               center={center}
               locations={locations}
               selectedId={selectedId}
-              onMapLoad={(map) => setMapInstance(map)}
+              onMapLoad={(map) => {
+                mapRef.current = map;
+                setMapReady(Boolean(map));
+              }}
               onMarkerClick={handleLocationClick}
               onLoadError={() => setMapFailed(true)}
               onInfoClose={() => setSelectedId(null)}
@@ -278,7 +285,7 @@ export function LocationsClient({ locations }: LocationsClientProps) {
         </div>
 
         {/* Map Controls wired to Google Maps */}
-        {apiKey && !mapFailed && mapInstance && (
+        {apiKey && !mapFailed && mapReady && (
           <div className="absolute top-8 right-8 flex flex-col gap-2">
             <button
               className="w-12 h-12 rounded-xl bg-white dark:bg-surface-dark flex items-center justify-center shadow-2xl hover:bg-gray-50 dark:hover:bg-bg-dark transition-colors"

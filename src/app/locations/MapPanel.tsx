@@ -1,5 +1,6 @@
 'use client';
 
+import { Loader } from '@googlemaps/js-api-loader';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { KioskLocation } from '@/lib/types';
 
@@ -17,41 +18,8 @@ interface MapPanelProps {
 const mapContainerStyle = {
   width: '100%',
   height: '100%',
+  minHeight: '320px',
 };
-
-const GOOGLE_MAPS_SCRIPT_ID = 'boilobox-google-maps';
-
-function loadGoogleMaps(apiKey: string): Promise<void> {
-  if (typeof window === 'undefined') return Promise.reject(new Error('Window not available'));
-  if (window.google?.maps) return Promise.resolve();
-
-  const existingPromise = (window as typeof window & { __boiloboxGoogleMapsPromise?: Promise<void> })
-    .__boiloboxGoogleMapsPromise;
-  if (existingPromise) return existingPromise;
-
-  const promise = new Promise<void>((resolve, reject) => {
-    const existingScript = document.getElementById(GOOGLE_MAPS_SCRIPT_ID) as HTMLScriptElement | null;
-    if (existingScript) {
-      existingScript.addEventListener('load', () => resolve());
-      existingScript.addEventListener('error', () => reject(new Error('Google Maps failed to load')));
-      return;
-    }
-
-    const script = document.createElement('script');
-    script.id = GOOGLE_MAPS_SCRIPT_ID;
-    script.async = true;
-    script.defer = true;
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(apiKey)}&v=weekly`;
-    script.onload = () => resolve();
-    script.onerror = () => reject(new Error('Google Maps failed to load'));
-    document.head.appendChild(script);
-  });
-
-  (window as typeof window & { __boiloboxGoogleMapsPromise?: Promise<void> }).__boiloboxGoogleMapsPromise =
-    promise;
-
-  return promise;
-}
 
 export default function MapPanel({
   apiKey,
@@ -69,13 +37,17 @@ export default function MapPanel({
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
   const hasFitBounds = useRef(false);
   const hasWarnedHidden = useRef(false);
+  const hasLoggedContainer = useRef(false);
+  const isInitializingRef = useRef(false);
   const centerRef = useRef(center);
   const mapStylesRef = useRef<google.maps.MapTypeStyle[]>([]);
   const onMapLoadRef = useRef(onMapLoad);
   const onLoadErrorRef = useRef(onLoadError);
+  const apiKeyRef = useRef(apiKey);
 
   const [isDark, setIsDark] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isReady, setIsReady] = useState(false);
   const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
@@ -136,26 +108,30 @@ export default function MapPanel({
   }, [onLoadError]);
 
   useEffect(() => {
+    apiKeyRef.current = apiKey;
+  }, [apiKey]);
+
+  useEffect(() => {
     let cancelled = false;
     let resizeObserver: ResizeObserver | null = null;
 
-    if (!containerRef.current || !window.google) return undefined;
-
-    // eslint-disable-next-line no-console
-    console.log('[MapPanel] Map container found', containerRef.current);
+    const isContainerVisible = (container: HTMLDivElement) => {
+      const rect = container.getBoundingClientRect();
+      if (rect.width <= 0 || rect.height <= 0) return false;
+      if (container.offsetWidth <= 0 || container.offsetHeight <= 0) return false;
+      if (container.getClientRects().length === 0) return false;
+      const styles = window.getComputedStyle(container);
+      if (styles.display === 'none' || styles.visibility === 'hidden') return false;
+      return true;
+    };
 
     const initMap = () => {
       if (cancelled) return;
       if (!containerRef.current || !window.google?.maps) return;
-      if (mapRef.current) return;
+      if (mapRef.current || isInitializingRef.current) return;
 
       const container = containerRef.current;
-      const isVisible =
-        container.offsetWidth > 0 &&
-        container.offsetHeight > 0 &&
-        container.getClientRects().length > 0;
-
-      if (!isVisible) {
+      if (!isContainerVisible(container)) {
         if (!hasWarnedHidden.current) {
           // eslint-disable-next-line no-console
           console.warn('[MapPanel] Container not visible; delaying map initialization.');
@@ -165,7 +141,9 @@ export default function MapPanel({
       }
 
       try {
-        const mapId = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID;
+        isInitializingRef.current = true;
+        const rawMapId = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID;
+        const mapId = typeof rawMapId === 'string' && rawMapId.trim().length > 0 ? rawMapId.trim() : undefined;
         const map = new google.maps.Map(container, {
           center: centerRef.current,
           zoom: 12,
@@ -174,6 +152,7 @@ export default function MapPanel({
           ...(mapId ? { mapId } : {}),
         });
 
+        // Disable UI only after the map instance exists.
         map.setOptions({
           disableDefaultUI: true,
           styles: mapStylesRef.current,
@@ -189,38 +168,87 @@ export default function MapPanel({
         console.log('[MapPanel] Map created');
 
         google.maps.event.addListenerOnce(map, 'idle', () => {
+          setIsReady(true);
           // eslint-disable-next-line no-console
           console.log('[MapPanel] Map tiles idle');
         });
       } catch (error) {
         // eslint-disable-next-line no-console
         console.error('Failed to initialize Google Map:', error);
+        if (containerRef.current) {
+          containerRef.current.innerHTML = '';
+        }
         setLoadError(true);
         onLoadErrorRef.current();
+      } finally {
+        isInitializingRef.current = false;
       }
     };
 
-    loadGoogleMaps(apiKey)
-      .then(() => {
-        if (cancelled) return;
-        initMap();
-      })
-      .catch((error) => {
+    const run = async () => {
+      const key = apiKeyRef.current?.trim();
+      if (!key) {
+        const error = new Error('Google Maps API key is missing (NEXT_PUBLIC_GOOGLE_MAPS_API_KEY).');
         // eslint-disable-next-line no-console
-        console.error('Google Maps failed to load:', error);
+        console.error(error);
         setLoadError(true);
         onLoadErrorRef.current();
-      });
+        throw error;
+      }
 
-    if (!mapRef.current && containerRef.current) {
-      resizeObserver = new ResizeObserver(() => {
-        initMap();
-        if (mapRef.current && resizeObserver) {
-          resizeObserver.disconnect();
+      if (!containerRef.current) return;
+
+      if (!hasLoggedContainer.current) {
+        // eslint-disable-next-line no-console
+        console.log('[MapPanel] Map container found', containerRef.current);
+        hasLoggedContainer.current = true;
+      }
+
+      if (!window.google?.maps) {
+        const loader = new Loader({
+          apiKey: key,
+          version: 'weekly',
+          libraries: ['marker'],
+        });
+
+        const googleMaps = await loader.load();
+        // eslint-disable-next-line no-console
+        console.log('[MapPanel] Google Maps script loaded');
+
+        if (!googleMaps?.maps || !window.google?.maps) {
+          const error = new Error('Google Maps failed to initialize.');
+          // eslint-disable-next-line no-console
+          console.error(error);
+          setLoadError(true);
+          onLoadErrorRef.current();
+          throw error;
         }
-      });
-      resizeObserver.observe(containerRef.current);
-    }
+      }
+
+      // Guard required: only initialize when container and API are ready.
+      if (!containerRef.current || !window.google?.maps) return;
+
+      // eslint-disable-next-line no-console
+      console.log('[MapPanel] google.maps.version', window.google.maps.version);
+
+      initMap();
+
+      if (!mapRef.current && containerRef.current) {
+        resizeObserver = new ResizeObserver(() => {
+          initMap();
+          if (mapRef.current && resizeObserver) {
+            resizeObserver.disconnect();
+          }
+        });
+        resizeObserver.observe(containerRef.current);
+      }
+    };
+
+    run().catch((error) => {
+      if (cancelled) return;
+      // eslint-disable-next-line no-console
+      console.error('Google Maps failed to load:', error);
+    });
 
     return () => {
       cancelled = true;
@@ -229,6 +257,7 @@ export default function MapPanel({
         onMapLoadRef.current(null);
         mapRef.current = null;
       }
+      setIsReady(false);
       markersRef.current.forEach((marker) => marker.setMap(null));
       markersRef.current = [];
       if (infoWindowRef.current) {
@@ -252,7 +281,7 @@ export default function MapPanel({
     locations.forEach((loc) => bounds.extend({ lat: loc.lat, lng: loc.lng }));
     map.fitBounds(bounds, 64);
     hasFitBounds.current = true;
-  }, [locations, isLoaded]);
+  }, [locations, isReady]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -276,7 +305,7 @@ export default function MapPanel({
       marker.addListener('click', () => onMarkerClick(loc));
       markersRef.current.push(marker);
     });
-  }, [locations, onMarkerClick, isLoaded]);
+  }, [locations, onMarkerClick, isReady]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -307,7 +336,7 @@ export default function MapPanel({
     infoWindowRef.current.open({ map });
     infoWindowRef.current.addListener('closeclick', onInfoClose);
     map.panTo({ lat: selectedLocation.lat, lng: selectedLocation.lng });
-  }, [locations, onInfoClose, selectedId, isLoaded]);
+  }, [locations, onInfoClose, selectedId, isReady]);
 
   if (loadError) {
     return null;

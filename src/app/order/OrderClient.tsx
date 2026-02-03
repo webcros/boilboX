@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import type { Meal } from '@/lib/types';
 
 interface OrderClientProps {
@@ -10,6 +11,7 @@ interface OrderClientProps {
 
 export default function OrderClient({ meal }: OrderClientProps) {
   const [quantity, setQuantity] = useState(1);
+  const router = useRouter();
 
   const total = useMemo(() => {
     if (!meal) return 0;
@@ -109,6 +111,9 @@ export default function OrderClient({ meal }: OrderClientProps) {
           <button
             type="button"
             className="mt-8 w-full h-14 rounded-2xl bg-primary hover:bg-primary-hover text-bg-dark font-extrabold text-sm md:text-base flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg shadow-primary/20"
+            onClick={() => {
+              router.push(`/checkout/payment?item=${encodeURIComponent(meal.slug)}&qty=${quantity}`);
+            }}
           >
             Proceed to Checkout
             <span className="material-symbols-outlined text-lg">arrow_forward</span>
