@@ -51,7 +51,7 @@ const Navbar = () => {
 
         <div className="flex items-center gap-4">
           {/* Theme Toggle */}
-          <button 
+          <button
             onClick={toggleTheme}
             className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
             aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
@@ -62,7 +62,7 @@ const Navbar = () => {
               <span className="material-symbols-outlined text-yellow-500">light_mode</span>
             )}
           </button>
-          
+
           <Link href="/locations" className="hidden sm:flex h-10 px-5 items-center justify-center rounded-lg bg-primary hover:bg-primary-hover transition-colors text-bg-dark text-sm font-bold">
             Find a Kiosk
           </Link>
@@ -71,7 +71,7 @@ const Navbar = () => {
           </button>
         </div>
       </div>
-      
+
       {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="lg:hidden bg-white dark:bg-bg-dark border-b border-gray-100 dark:border-white/10 px-4 py-4 animate-fade-in">
@@ -79,7 +79,7 @@ const Navbar = () => {
             {/* Theme Toggle in Mobile Menu */}
             <div className="flex items-center justify-between p-2">
               <span className="font-bold">Theme</span>
-              <button 
+              <button
                 onClick={toggleTheme}
                 className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                 aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
@@ -91,7 +91,7 @@ const Navbar = () => {
                 )}
               </button>
             </div>
-            
+
             {navLinks.map((link) => (
               <Link
                 key={link.path}

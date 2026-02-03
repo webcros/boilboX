@@ -2,20 +2,29 @@
 
 @theme {
   /* Light theme palette (default) */
-  --color-background: #f9fafb; /* page background */
-  --color-foreground: #020617; /* main text */
+  --color-background: #f9fafb;
+  /* page background */
+  --color-foreground: #020617;
+  /* main text */
 
-  --color-primary: #16a34a; /* green-600 */
-  --color-primary-hover: #15803d; /* green-700 */
-  --color-secondary: #0ea5e9; /* sky-500 */
-  --color-secondary-hover: #0284c7; /* sky-600 */
+  --color-primary: #16a34a;
+  /* green-600 */
+  --color-primary-hover: #15803d;
+  /* green-700 */
+  --color-secondary: #0ea5e9;
+  /* sky-500 */
+  --color-secondary-hover: #0284c7;
+  /* sky-600 */
 
   /* Surface helpers */
   --background: #f9fafb;
   --foreground: #020617;
-  --color-bg-light: #ffffff; /* cards / panels */
-  --color-bg-dark: #e5e7eb; /* subtle light borders / stripes */
-  --color-surface-dark: #0f172a; /* for mixed dark-on-light sections */
+  --color-bg-light: #ffffff;
+  /* cards / panels */
+  --color-bg-dark: #e5e7eb;
+  /* subtle light borders / stripes */
+  --color-surface-dark: #0f172a;
+  /* for mixed dark-on-light sections */
 
   --font-sans: var(--font-manrope);
   --font-mono: var(--font-noto-sans);
@@ -23,20 +32,29 @@
 
 .dark {
   /* Dark theme palette */
-  --color-background: #020617; /* slate-950 */
-  --color-foreground: #e5e7eb; /* gray-200 */
+  --color-background: #020617;
+  /* slate-950 */
+  --color-foreground: #e5e7eb;
+  /* gray-200 */
 
-  --color-primary: #22c55e; /* green-500 */
-  --color-primary-hover: #16a34a; /* green-600 */
-  --color-secondary: #38bdf8; /* sky-400 */
-  --color-secondary-hover: #0ea5e9; /* sky-500 */
+  --color-primary: #22c55e;
+  /* green-500 */
+  --color-primary-hover: #16a34a;
+  /* green-600 */
+  --color-secondary: #38bdf8;
+  /* sky-400 */
+  --color-secondary-hover: #0ea5e9;
+  /* sky-500 */
 
   /* Surface helpers for dark */
   --background: #020617;
   --foreground: #e5e7eb;
-  --color-bg-light: #0b1120; /* card background */
-  --color-bg-dark: #020617; /* page background */
-  --color-surface-dark: #020617; /* deep sections/footer */
+  --color-bg-light: #0b1120;
+  /* card background */
+  --color-bg-dark: #020617;
+  /* page background */
+  --color-surface-dark: #020617;
+  /* deep sections/footer */
 }
 
 body {
@@ -49,41 +67,66 @@ body {
   .hide-scrollbar::-webkit-scrollbar {
     display: none;
   }
+
   .hide-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-  
+
   @keyframes fade-in {
     from {
       opacity: 0;
       transform: translateY(10px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
     }
   }
-  
+
   .animate-fade-in {
     animation: fade-in 0.5s ease-out;
   }
-  
+
   @keyframes bounce-slow {
-    0%, 100% {
+
+    0%,
+    100% {
       transform: translateY(0);
     }
+
     50% {
       transform: translateY(-10px);
     }
   }
-  
+
   .animate-bounce-slow {
     animation: bounce-slow 3s ease-in-out infinite;
+  }
+
+  html:not(.dark) .locations-subtitle {
+    color: #000000 !important;
+  }
+
+  html:not(.dark) .locations-search-input {
+    color: #ffffff !important;
+  }
+
+  html:not(.dark) .locations-search-input::placeholder {
+    color: #ffffff !important;
+  }
+
+  html:not(.dark) .neon-selection,
+  html:not(.dark) .neon-selection * {
+    color: #000000 !important;
+    opacity: 1 !important;
+    text-shadow: none !important;
   }
 }
 
 @layer base {
+
   html:not(.dark) .dark\:bg-surface-dark :is(h1, h2, h3, h4, p, span, a, button, label),
   html:not(.dark) .dark\:bg-surface-dark :is(svg, i, strong, em) {
     @apply text-white;

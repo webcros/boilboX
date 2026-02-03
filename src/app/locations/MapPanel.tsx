@@ -68,6 +68,11 @@ export default function MapPanel({
   const markersRef = useRef<google.maps.Marker[]>([]);
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
   const hasFitBounds = useRef(false);
+  const hasWarnedHidden = useRef(false);
+  const centerRef = useRef(center);
+  const mapStylesRef = useRef<google.maps.MapTypeStyle[]>([]);
+  const onMapLoadRef = useRef(onMapLoad);
+  const onLoadErrorRef = useRef(onLoadError);
 
   const [isDark, setIsDark] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -115,51 +120,113 @@ export default function MapPanel({
   }, [isDark]);
 
   useEffect(() => {
-    let cancelled = false;
+    centerRef.current = center;
+  }, [center]);
 
-    if (!apiKey || !containerRef.current) return undefined;
-    if (mapRef.current) return undefined;
+  useEffect(() => {
+    mapStylesRef.current = mapStyles;
+  }, [mapStyles]);
+
+  useEffect(() => {
+    onMapLoadRef.current = onMapLoad;
+  }, [onMapLoad]);
+
+  useEffect(() => {
+    onLoadErrorRef.current = onLoadError;
+  }, [onLoadError]);
+
+  useEffect(() => {
+    let cancelled = false;
+    let resizeObserver: ResizeObserver | null = null;
+
+    if (!containerRef.current || !window.google) return undefined;
+
+    // eslint-disable-next-line no-console
+    console.log('[MapPanel] Map container found', containerRef.current);
+
+    const initMap = () => {
+      if (cancelled) return;
+      if (!containerRef.current || !window.google?.maps) return;
+      if (mapRef.current) return;
+
+      const container = containerRef.current;
+      const isVisible =
+        container.offsetWidth > 0 &&
+        container.offsetHeight > 0 &&
+        container.getClientRects().length > 0;
+
+      if (!isVisible) {
+        if (!hasWarnedHidden.current) {
+          // eslint-disable-next-line no-console
+          console.warn('[MapPanel] Container not visible; delaying map initialization.');
+          hasWarnedHidden.current = true;
+        }
+        return;
+      }
+
+      try {
+        const mapId = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID;
+        const map = new google.maps.Map(container, {
+          center: centerRef.current,
+          zoom: 12,
+          clickableIcons: false,
+          gestureHandling: 'greedy',
+          ...(mapId ? { mapId } : {}),
+        });
+
+        map.setOptions({
+          disableDefaultUI: true,
+          styles: mapStylesRef.current,
+          draggable: true,
+          scrollwheel: true,
+        });
+
+        mapRef.current = map;
+        setIsLoaded(true);
+        onMapLoadRef.current(map);
+
+        // eslint-disable-next-line no-console
+        console.log('[MapPanel] Map created');
+
+        google.maps.event.addListenerOnce(map, 'idle', () => {
+          // eslint-disable-next-line no-console
+          console.log('[MapPanel] Map tiles idle');
+        });
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error('Failed to initialize Google Map:', error);
+        setLoadError(true);
+        onLoadErrorRef.current();
+      }
+    };
 
     loadGoogleMaps(apiKey)
       .then(() => {
-        if (cancelled || !containerRef.current || !window.google?.maps) return;
-
-        try {
-          const map = new google.maps.Map(containerRef.current, {
-            center,
-            zoom: 12,
-            clickableIcons: false,
-            gestureHandling: 'greedy',
-          });
-
-          map.setOptions({
-            disableDefaultUI: true,
-            styles: mapStyles,
-            draggable: true,
-            scrollwheel: true,
-          });
-
-          mapRef.current = map;
-          setIsLoaded(true);
-          onMapLoad(map);
-        } catch (error) {
-          // eslint-disable-next-line no-console
-          console.error('Failed to initialize Google Map:', error);
-          setLoadError(true);
-          onLoadError();
-        }
+        if (cancelled) return;
+        initMap();
       })
       .catch((error) => {
         // eslint-disable-next-line no-console
         console.error('Google Maps failed to load:', error);
         setLoadError(true);
-        onLoadError();
+        onLoadErrorRef.current();
       });
+
+    if (!mapRef.current && containerRef.current) {
+      resizeObserver = new ResizeObserver(() => {
+        initMap();
+        if (mapRef.current && resizeObserver) {
+          resizeObserver.disconnect();
+        }
+      });
+      resizeObserver.observe(containerRef.current);
+    }
 
     return () => {
       cancelled = true;
+      resizeObserver?.disconnect();
       if (mapRef.current) {
-        onMapLoad(null);
+        onMapLoadRef.current(null);
         mapRef.current = null;
       }
       markersRef.current.forEach((marker) => marker.setMap(null));
@@ -169,7 +236,7 @@ export default function MapPanel({
         infoWindowRef.current = null;
       }
     };
-  }, [apiKey, center, mapStyles, onLoadError, onMapLoad]);
+  }, []);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -185,7 +252,7 @@ export default function MapPanel({
     locations.forEach((loc) => bounds.extend({ lat: loc.lat, lng: loc.lng }));
     map.fitBounds(bounds, 64);
     hasFitBounds.current = true;
-  }, [locations]);
+  }, [locations, isLoaded]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -209,7 +276,7 @@ export default function MapPanel({
       marker.addListener('click', () => onMarkerClick(loc));
       markersRef.current.push(marker);
     });
-  }, [locations, onMarkerClick]);
+  }, [locations, onMarkerClick, isLoaded]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -240,19 +307,20 @@ export default function MapPanel({
     infoWindowRef.current.open({ map });
     infoWindowRef.current.addListener('closeclick', onInfoClose);
     map.panTo({ lat: selectedLocation.lat, lng: selectedLocation.lng });
-  }, [locations, onInfoClose, selectedId]);
+  }, [locations, onInfoClose, selectedId, isLoaded]);
 
   if (loadError) {
     return null;
   }
 
-  if (!isLoaded) {
-    return (
-      <div className="w-full h-full bg-gray-100 dark:bg-bg-dark/40 flex items-center justify-center text-gray-400 text-sm">
-        Loading map…
-      </div>
-    );
-  }
-
-  return <div ref={containerRef} style={mapContainerStyle} />;
+  return (
+    <div className="w-full h-full relative">
+      <div ref={containerRef} style={mapContainerStyle} className="w-full h-full" />
+      {!isLoaded && (
+        <div className="absolute inset-0 w-full h-full bg-gray-100 dark:bg-bg-dark/40 flex items-center justify-center text-gray-400 text-sm">
+          Loading map...
+        </div>
+      )}
+    </div>
+  );
 }

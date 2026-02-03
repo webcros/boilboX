@@ -85,7 +85,7 @@ export function LocationsClient({ locations }: LocationsClientProps) {
       <div className="w-full lg:w-[480px] xl:w-[540px] flex flex-col h-full bg-white dark:bg-bg-dark border-r border-gray-100 dark:border-white/10 shadow-xl z-10">
         <div className="p-8 pb-4">
           <h1 className="text-4xl font-black mb-2 tracking-tight">Find a BoilboX</h1>
-          <p className="text-gray-500 dark:text-gray-300 text-sm mb-8">Fresh, oil-free meals served by our amazing community partners.</p>
+          <p className="locations-subtitle text-sm mb-8 dark:text-gray-300">Fresh, oil-free meals served by our amazing community partners.</p>
 
           <div className="relative mb-6">
             <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">search</span>

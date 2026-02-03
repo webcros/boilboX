@@ -145,26 +145,26 @@ export default async function PartnerPage() {
               </li>
             </ul>
           </div>
-          <div className="neon-selection space-y-6 text-sm text-gray-600 dark:text-gray-300">
+          <div className="neon-selection space-y-6 text-sm text-black dark:text-gray-300">
             <div>
-              <h3 className="font-bold mb-2">Ideal locations</h3>
-              <p className="neon-text-glow">
+              <h3 className="font-bold mb-2 text-black dark:text-gray-300">Ideal locations</h3>
+              <p className="text-black dark:text-gray-300 dark:neon-text-glow">
                 We look for high-flow environments where people make repeated,
                 everyday food decisions: corporate offices, business parks,
                 co-living spaces, colleges, hospitals and transit hubs.
               </p>
             </div>
             <div>
-              <h3 className="font-bold mb-2">Unit economics</h3>
-              <p className="neon-text-glow">
+              <h3 className="font-bold mb-2 text-black dark:text-gray-300">Unit economics</h3>
+              <p className="text-black dark:text-gray-300 dark:neon-text-glow">
                 The BoilboX model is built for throughput and efficiency rather
                 than large dining rooms. That means lower capex per location and
                 a clearer path to profitable, multi-kiosk networks.
               </p>
             </div>
             <div>
-              <h3 className="font-bold mb-2">Local suppliers</h3>
-              <p className="neon-text-glow">
+              <h3 className="font-bold mb-2 text-black dark:text-gray-300">Local suppliers</h3>
+              <p className="text-black dark:text-gray-300 dark:neon-text-glow">
                 If you&apos;re a farm or producer focused on high-quality staples,
                 we&apos;re always exploring new supply partnerships for specific
                 regions.
