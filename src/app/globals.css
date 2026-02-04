@@ -142,6 +142,10 @@ body {
   html:not(.dark) .partner-cta-secondary:hover {
     background-color: #dcfce7 !important;
   }
+
+  html:not(.dark) .partner-cta-copy {
+    color: #000000 !important;
+  }
 }
 
 @layer base {

@@ -249,7 +249,7 @@ export default async function Home() {
         <div className="bg-primary/10 rounded-[2.5rem] p-12 md:p-20 flex flex-col md:flex-row items-center justify-between gap-12 border border-primary/20">
           <div className="text-center md:text-left max-w-xl">
             <h3 className="text-3xl md:text-5xl font-black mb-4 tracking-tight text-gray-900 dark:text-primary">Want to partner with us?</h3>
-            <p className="text-gray-700 dark:text-gray-300 text-lg">Open a franchise, bring a kiosk to your office, or supply fresh local produce.</p>
+              <p className="partner-cta-copy text-black dark:text-gray-300 text-lg">Open a franchise, bring a kiosk to your office, or supply fresh local produce.</p>
           </div>
           <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
             <Link
