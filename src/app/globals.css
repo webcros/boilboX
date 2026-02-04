@@ -123,6 +123,25 @@ body {
     opacity: 1 !important;
     text-shadow: none !important;
   }
+
+  html:not(.dark) .partner-cta-primary {
+    background-color: #16a34a !important;
+    color: #ffffff !important;
+  }
+
+  html:not(.dark) .partner-cta-primary:hover {
+    background-color: #15803d !important;
+  }
+
+  html:not(.dark) .partner-cta-secondary {
+    background-color: #ecfdf3 !important;
+    border-color: #bbf7d0 !important;
+    color: #166534 !important;
+  }
+
+  html:not(.dark) .partner-cta-secondary:hover {
+    background-color: #dcfce7 !important;
+  }
 }
 
 @layer base {

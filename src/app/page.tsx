@@ -252,8 +252,18 @@ export default async function Home() {
             <p className="text-gray-700 dark:text-gray-300 text-lg">Open a franchise, bring a kiosk to your office, or supply fresh local produce.</p>
           </div>
           <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
-            <Link href="/partner" className="bg-bg-dark text-white px-8 py-4 rounded-xl font-black hover:bg-black transition-all shadow-xl text-center">Apply for Franchise</Link>
-            <Link href="/partner" className="bg-white border border-gray-200 px-8 py-4 rounded-xl font-black text-bg-dark hover:bg-gray-50 transition-all text-center">Become a Supplier</Link>
+            <Link
+              href="/partner"
+              className="partner-cta-primary bg-green-600 text-white px-8 py-4 rounded-xl font-black hover:bg-green-700 transition-all shadow-xl text-center dark:bg-bg-dark dark:text-white dark:hover:bg-black"
+            >
+              Apply for Franchise
+            </Link>
+            <Link
+              href="/partner"
+              className="partner-cta-secondary bg-green-50 border border-green-200 px-8 py-4 rounded-xl font-black text-green-800 hover:bg-green-100 transition-all text-center dark:bg-white dark:border-gray-200 dark:text-bg-dark dark:hover:bg-gray-50"
+            >
+              Become a Supplier
+            </Link>
           </div>
         </div>
       </section>
