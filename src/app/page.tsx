@@ -34,17 +34,17 @@ export default async function Home() {
               BoilboX is redefining fast food. Transparency, nutrient retention, and meals that heal from the inside out.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center mt-6">
-              <Link href="/menu" className="h-14 px-10 rounded-xl bg-primary hover:bg-primary-hover text-bg-dark text-lg font-bold transition-all transform hover:scale-105 flex items-center justify-center">
+              <Link href="/menu" className="h-14 px-10 md:px-8 lg:px-10 rounded-xl bg-primary hover:bg-primary-hover text-bg-dark text-lg font-bold transition-all transform hover:scale-105 flex items-center justify-center md:whitespace-nowrap">
                 Order Now
               </Link>
-              <Link href="/locations" className="h-14 px-10 rounded-xl border border-white/30 text-white text-lg font-bold transition-all flex items-center justify-center">
+              <Link href="/locations" className="h-14 px-10 md:px-8 lg:px-10 rounded-xl border border-white/30 text-white text-lg font-bold transition-all flex items-center justify-center md:whitespace-nowrap">
                 Find a Kiosk
               </Link>
-              <Link href="/partner" className="h-14 px-10 rounded-xl bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/30 text-lg font-bold transition-all flex items-center justify-center gap-2">
+              <Link href="/partner" className="h-14 px-10 md:px-8 lg:px-10 rounded-xl bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/30 text-lg font-bold transition-all flex items-center justify-center gap-2 md:whitespace-nowrap">
                 <span>Partner</span>
                 <span className="material-symbols-outlined">arrow_forward</span>
               </Link>
-              <Link href="/model" className="h-14 px-10 rounded-xl bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/30 text-lg font-bold transition-all flex items-center justify-center gap-2">
+              <Link href="/model" className="h-14 px-10 md:px-8 lg:px-10 rounded-xl bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/30 text-lg font-bold transition-all flex items-center justify-center gap-2 md:whitespace-nowrap">
                 <span>How it Works</span>
                 <span className="material-symbols-outlined">arrow_forward</span>
               </Link>
