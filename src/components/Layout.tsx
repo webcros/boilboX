@@ -26,15 +26,15 @@ const Navbar = () => {
         <Link href="/" className="flex items-center gap-2 group">
           <div className="group-hover:scale-110 transition-transform">
             <Image
-              src="/updated_logo.png"
-              alt="BoiledboX logo"
-              width={120}
-              height={32}
-              className="h-8 w-auto"
+              src="/BoiledboX%20Final%20Logo.png"
+              alt="BoiledBoX logo"
+              width={240}
+              height={64}
+              className="h-16 w-auto"
               priority
             />
           </div>
-          <h2 className="text-xl font-bold tracking-tight">BoilboX</h2>
+          <h2 className="text-xl font-bold tracking-tight leading-none">BoiledBoX</h2>
         </Link>
 
         <div className="hidden lg:flex items-center gap-8">
@@ -139,13 +139,13 @@ const Footer = () => {
           <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-2 mb-4">
               <Image
-                src="/updated_logo.png"
-                alt="BoiledboX logo"
-                width={96}
-                height={24}
-                className="h-6 w-auto"
+                src="/BoiledboX%20Final%20Logo.png"
+                alt="BoiledBoX logo"
+                width={200}
+                height={56}
+                className="h-14 w-auto"
               />
-              <span className="font-bold text-lg text-white">BoilboX</span>
+              <span className="font-bold text-lg text-white leading-none">BoiledBoX</span>
             </div>
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 max-w-xs">
               Redefining fast food with 100% boiled, oil-free meals for a healthier tomorrow.
