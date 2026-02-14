@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
 
 @theme {
   /* Light theme palette (default) */
@@ -61,6 +62,66 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: 'Manrope', Arial, Helvetica, sans-serif;
+}
+
+.locations-leaflet-map .leaflet-container {
+  background: #e9f7ef;
+}
+
+.locations-leaflet-map .leaflet-tile {
+  filter: saturate(1.2) hue-rotate(60deg) brightness(1.03) contrast(1.05);
+}
+
+.dark .locations-leaflet-map .leaflet-tile {
+  filter: saturate(1.1) hue-rotate(60deg) brightness(0.9) contrast(1.15);
+}
+
+.locations-leaflet-map .leaflet-popup-content-wrapper {
+  border-radius: 12px;
+  border: 1px solid #bbf7d0;
+  box-shadow: 0 10px 30px rgba(16, 185, 129, 0.2);
+}
+
+.locations-leaflet-map .leaflet-popup-tip {
+  background: #ffffff;
+  border: 1px solid #bbf7d0;
+}
+
+.boilox-user-location {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.boilox-user-dot {
+  width: 12px;
+  height: 12px;
+  background: #16a34a;
+  border: 2px solid #ffffff;
+  border-radius: 999px;
+  box-shadow: 0 0 0 6px rgba(34, 197, 94, 0.2);
+  display: block;
+}
+
+.boilox-user-ring {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  border: 2px solid rgba(22, 163, 74, 0.35);
+  border-radius: 999px;
+  animation: boilox-pulse 2.4s ease-out infinite;
+}
+
+@keyframes boilox-pulse {
+  0% {
+    transform: scale(0.5);
+    opacity: 0.9;
+  }
+
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
 }
 
 @layer utilities {

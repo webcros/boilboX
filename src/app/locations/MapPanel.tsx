@@ -1,28 +1,34 @@
 'use client';
 
-import { Loader } from '@googlemaps/js-api-loader';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { KioskLocation } from '@/lib/types';
 
+/* ---- Leaflet types only (no runtime import at module level) ---- */
+type LMap = import('leaflet').Map;
+type LMarker = import('leaflet').Marker;
+type LPopup = import('leaflet').Popup;
+type LeafletModule = typeof import('leaflet');
+
+const DEFAULT_CENTER: [number, number] = [37.7749, -122.4194];
+const DEFAULT_ZOOM = 12;
+
 interface MapPanelProps {
-  apiKey: string;
   center: { lat: number; lng: number };
   locations: KioskLocation[];
   selectedId: string | null;
-  onMapLoad: (map: google.maps.Map | null) => void;
+  onMapLoad: (map: LMap | null) => void;
   onMarkerClick: (location: KioskLocation) => void;
   onLoadError: () => void;
   onInfoClose: () => void;
 }
 
-const mapContainerStyle = {
+const mapContainerStyle: React.CSSProperties = {
   width: '100%',
   height: '100%',
   minHeight: '320px',
 };
 
 export default function MapPanel({
-  apiKey,
   center,
   locations,
   selectedId,
@@ -32,322 +38,234 @@ export default function MapPanel({
   onInfoClose,
 }: MapPanelProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const mapRef = useRef<google.maps.Map | null>(null);
-  const markersRef = useRef<google.maps.Marker[]>([]);
-  const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
-  const hasFitBounds = useRef(false);
-  const hasWarnedHidden = useRef(false);
-  const hasLoggedContainer = useRef(false);
-  const isInitializingRef = useRef(false);
-  const centerRef = useRef(center);
-  const mapStylesRef = useRef<google.maps.MapTypeStyle[]>([]);
+  const mapRef = useRef<LMap | null>(null);
+  const markersRef = useRef<LMarker[]>([]);
+  const popupRef = useRef<LPopup | null>(null);
+  const userMarkerRef = useRef<LMarker | null>(null);
+  const leafletRef = useRef<LeafletModule | null>(null);
+
+  const hasFitBoundsRef = useRef(false);
+  const initInProgressRef = useRef(false);
+  const hasInitializedRef = useRef(false);
+  const hasCenteredOnUserRef = useRef(false);
+
   const onMapLoadRef = useRef(onMapLoad);
   const onLoadErrorRef = useRef(onLoadError);
-  const apiKeyRef = useRef(apiKey);
+  const onMarkerClickRef = useRef(onMarkerClick);
+  const onInfoCloseRef = useRef(onInfoClose);
 
-  const [isDark, setIsDark] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [loadError, setLoadError] = useState(false);
 
+  useEffect(() => { onMapLoadRef.current = onMapLoad; }, [onMapLoad]);
+  useEffect(() => { onLoadErrorRef.current = onLoadError; }, [onLoadError]);
+  useEffect(() => { onMarkerClickRef.current = onMarkerClick; }, [onMarkerClick]);
+  useEffect(() => { onInfoCloseRef.current = onInfoClose; }, [onInfoClose]);
+
+  /* pan when center prop changes */
   useEffect(() => {
-    const updateTheme = () => {
-      if (typeof document === 'undefined') return;
-      setIsDark(document.documentElement.classList.contains('dark'));
-    };
-
-    updateTheme();
-    if (typeof document === 'undefined') return;
-
-    const observer = new MutationObserver(updateTheme);
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
-    return () => observer.disconnect();
-  }, []);
-
-  const mapStyles = useMemo(() => {
-    if (isDark) {
-      return [
-        { elementType: 'geometry', stylers: [{ color: '#0b1120' }] },
-        { elementType: 'labels.text.fill', stylers: [{ color: '#9ca3af' }] },
-        { elementType: 'labels.text.stroke', stylers: [{ color: '#0b1120' }] },
-        { featureType: 'poi', elementType: 'labels.text', stylers: [{ visibility: 'off' }] },
-        { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#111827' }] },
-        { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#1f2937' }] },
-        { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#0f172a' }] },
-      ];
+    if (mapRef.current) {
+      mapRef.current.setView([center.lat, center.lng], mapRef.current.getZoom(), { animate: true });
     }
-
-    return [
-      {
-        featureType: 'all',
-        elementType: 'labels.text.fill',
-        stylers: [{ color: '#6b7280' }],
-      },
-      {
-        featureType: 'poi',
-        elementType: 'labels.text',
-        stylers: [{ visibility: 'off' }],
-      },
-    ];
-  }, [isDark]);
-
-  useEffect(() => {
-    centerRef.current = center;
   }, [center]);
 
-  useEffect(() => {
-    mapStylesRef.current = mapStyles;
-  }, [mapStyles]);
-
-  useEffect(() => {
-    onMapLoadRef.current = onMapLoad;
-  }, [onMapLoad]);
-
-  useEffect(() => {
-    onLoadErrorRef.current = onLoadError;
-  }, [onLoadError]);
-
-  useEffect(() => {
-    apiKeyRef.current = apiKey;
-  }, [apiKey]);
-
+  /* ===================== initialise map ===================== */
   useEffect(() => {
     let cancelled = false;
-    let resizeObserver: ResizeObserver | null = null;
 
-    const isContainerVisible = (container: HTMLDivElement) => {
-      const rect = container.getBoundingClientRect();
-      if (rect.width <= 0 || rect.height <= 0) return false;
-      if (container.offsetWidth <= 0 || container.offsetHeight <= 0) return false;
-      if (container.getClientRects().length === 0) return false;
-      const styles = window.getComputedStyle(container);
-      if (styles.display === 'none' || styles.visibility === 'hidden') return false;
-      return true;
-    };
+    const waitForContainer = () =>
+      new Promise<HTMLDivElement>((resolve) => {
+        const check = () => {
+          if (cancelled) return;
+          if (containerRef.current) { resolve(containerRef.current); return; }
+          requestAnimationFrame(check);
+        };
+        check();
+      });
 
-    const initMap = () => {
+    const initMap = async () => {
+      /* dynamic import – never executed on the server */
+      const L = await import('leaflet');
+      leafletRef.current = L;
+
+      /* fix default marker icon paths broken by webpack */
+      // biome-ignore lint/suspicious/noExplicitAny: leaflet internals
+      delete (L.Icon.Default.prototype as any)._getIconUrl;
+      L.Icon.Default.mergeOptions({
+        iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+        iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+      });
+
+      const container = await waitForContainer();
       if (cancelled) return;
-      if (!containerRef.current || !window.google?.maps) return;
-      if (mapRef.current || isInitializingRef.current) return;
+      if (mapRef.current || initInProgressRef.current || hasInitializedRef.current) return;
 
-      const container = containerRef.current;
-      if (!isContainerVisible(container)) {
-        if (!hasWarnedHidden.current) {
-          // eslint-disable-next-line no-console
-          console.warn('[MapPanel] Container not visible; delaying map initialization.');
-          hasWarnedHidden.current = true;
-        }
-        return;
-      }
+      initInProgressRef.current = true;
 
       try {
-        isInitializingRef.current = true;
-        const rawMapId = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID;
-        const mapId = typeof rawMapId === 'string' && rawMapId.trim().length > 0 ? rawMapId.trim() : undefined;
-        const map = new google.maps.Map(container, {
-          center: centerRef.current,
-          zoom: 12,
-          clickableIcons: false,
-          gestureHandling: 'greedy',
-          ...(mapId ? { mapId } : {}),
+        const map = L.map(container, {
+          center: DEFAULT_CENTER,
+          zoom: DEFAULT_ZOOM,
+          zoomControl: false,
+          scrollWheelZoom: true,
         });
 
-        // Disable UI only after the map instance exists.
-        map.setOptions({
-          disableDefaultUI: true,
-          styles: mapStylesRef.current,
-          draggable: true,
-          scrollwheel: true,
-        });
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; OpenStreetMap contributors',
+          className: 'boilox-tiles',
+        }).addTo(map);
 
         mapRef.current = map;
+        hasInitializedRef.current = true;
         setIsLoaded(true);
         onMapLoadRef.current(map);
 
-        // eslint-disable-next-line no-console
-        console.log('[MapPanel] Map created');
-
-        google.maps.event.addListenerOnce(map, 'idle', () => {
-          setIsReady(true);
-          // eslint-disable-next-line no-console
-          console.log('[MapPanel] Map tiles idle');
+        map.whenReady(() => {
+          if (!cancelled) setIsReady(true);
         });
       } catch (error) {
-        // eslint-disable-next-line no-console
-        console.error('Failed to initialize Google Map:', error);
-        if (containerRef.current) {
-          containerRef.current.innerHTML = '';
-        }
+        console.error('[MapPanel] Failed to initialise map:', error);
         setLoadError(true);
         onLoadErrorRef.current();
       } finally {
-        isInitializingRef.current = false;
+        initInProgressRef.current = false;
       }
     };
 
-    const run = async () => {
-      const key = apiKeyRef.current?.trim();
-      if (!key) {
-        const error = new Error('Google Maps API key is missing (NEXT_PUBLIC_GOOGLE_MAPS_API_KEY).');
-        // eslint-disable-next-line no-console
-        console.error(error);
-        setLoadError(true);
-        onLoadErrorRef.current();
-        throw error;
-      }
-
-      if (!containerRef.current) return;
-
-      if (!hasLoggedContainer.current) {
-        // eslint-disable-next-line no-console
-        console.log('[MapPanel] Map container found', containerRef.current);
-        hasLoggedContainer.current = true;
-      }
-
-      if (!window.google?.maps) {
-        const loader = new Loader({
-          apiKey: key,
-          version: 'weekly',
-          libraries: ['marker'],
-        });
-
-        const googleMaps = await loader.load();
-        // eslint-disable-next-line no-console
-        console.log('[MapPanel] Google Maps script loaded');
-
-        if (!googleMaps?.maps || !window.google?.maps) {
-          const error = new Error('Google Maps failed to initialize.');
-          // eslint-disable-next-line no-console
-          console.error(error);
-          setLoadError(true);
-          onLoadErrorRef.current();
-          throw error;
-        }
-      }
-
-      // Guard required: only initialize when container and API are ready.
-      if (!containerRef.current || !window.google?.maps) return;
-
-      // eslint-disable-next-line no-console
-      console.log('[MapPanel] google.maps.version', window.google.maps.version);
-
-      initMap();
-
-      if (!mapRef.current && containerRef.current) {
-        resizeObserver = new ResizeObserver(() => {
-          initMap();
-          if (mapRef.current && resizeObserver) {
-            resizeObserver.disconnect();
-          }
-        });
-        resizeObserver.observe(containerRef.current);
-      }
-    };
-
-    run().catch((error) => {
+    initMap().catch((error) => {
       if (cancelled) return;
-      // eslint-disable-next-line no-console
-      console.error('Google Maps failed to load:', error);
+      console.error('[MapPanel] Map failed to load:', error);
+      setLoadError(true);
+      onLoadErrorRef.current();
     });
 
     return () => {
       cancelled = true;
-      resizeObserver?.disconnect();
       if (mapRef.current) {
         onMapLoadRef.current(null);
+        mapRef.current.remove();
         mapRef.current = null;
       }
-      setIsReady(false);
-      markersRef.current.forEach((marker) => marker.setMap(null));
+      markersRef.current.forEach((m) => m.remove());
       markersRef.current = [];
-      if (infoWindowRef.current) {
-        infoWindowRef.current.close();
-        infoWindowRef.current = null;
-      }
+      popupRef.current = null;
+      userMarkerRef.current?.remove();
+      userMarkerRef.current = null;
+      setIsLoaded(false);
+      setIsReady(false);
     };
   }, []);
 
+  /* ===================== fit bounds once ===================== */
   useEffect(() => {
+    const L = leafletRef.current;
     const map = mapRef.current;
-    if (!map || locations.length === 0 || hasFitBounds.current) return;
-    if (locations.length === 1) {
-      map.setCenter({ lat: locations[0].lat, lng: locations[0].lng });
-      map.setZoom(14);
-      hasFitBounds.current = true;
-      return;
-    }
+    if (!L || !map || locations.length === 0 || hasFitBoundsRef.current || !isReady) return;
 
-    const bounds = new google.maps.LatLngBounds();
-    locations.forEach((loc) => bounds.extend({ lat: loc.lat, lng: loc.lng }));
-    map.fitBounds(bounds, 64);
-    hasFitBounds.current = true;
+    if (locations.length === 1) {
+      map.setView([locations[0].lat, locations[0].lng], 14, { animate: true });
+    } else {
+      const bounds = L.latLngBounds(locations.map((loc) => [loc.lat, loc.lng] as [number, number]));
+      map.fitBounds(bounds, { padding: [64, 64] });
+    }
+    hasFitBoundsRef.current = true;
   }, [locations, isReady]);
 
+  /* ===================== markers ===================== */
   useEffect(() => {
+    const L = leafletRef.current;
     const map = mapRef.current;
-    if (!map) return;
-    map.setOptions({ styles: mapStyles });
-  }, [mapStyles]);
+    if (!L || !map || !isReady) return;
 
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map) return;
-
-    markersRef.current.forEach((marker) => marker.setMap(null));
+    markersRef.current.forEach((m) => m.remove());
     markersRef.current = [];
 
     locations.forEach((loc) => {
-      const marker = new google.maps.Marker({
-        position: { lat: loc.lat, lng: loc.lng },
-        map,
-      });
-
-      marker.addListener('click', () => onMarkerClick(loc));
+      const marker = L.marker([loc.lat, loc.lng]).addTo(map);
+      marker.on('click', () => onMarkerClickRef.current(loc));
       markersRef.current.push(marker);
     });
-  }, [locations, onMarkerClick, isReady]);
+  }, [locations, isReady]);
 
+  /* ===================== selected popup ===================== */
   useEffect(() => {
+    const L = leafletRef.current;
     const map = mapRef.current;
-    if (!map) return;
+    if (!L || !map || !isReady) return;
 
-    const selectedLocation = selectedId
-      ? locations.find((loc) => loc.id === selectedId) || null
-      : null;
+    const selectedLocation = selectedId ? locations.find((loc) => loc.id === selectedId) ?? null : null;
 
     if (!selectedLocation) {
-      if (infoWindowRef.current) {
-        infoWindowRef.current.close();
-      }
+      popupRef.current?.remove();
       return;
     }
 
-    if (!infoWindowRef.current) {
-      infoWindowRef.current = new google.maps.InfoWindow();
-    }
+    const popup = L.popup({ closeButton: true, autoPan: true })
+      .setLatLng([selectedLocation.lat, selectedLocation.lng])
+      .setContent(
+        `<div style="font-size:12px;line-height:1.4">
+          <div style="font-weight:700;color:#0f172a">${selectedLocation.name}</div>
+          <div style="color:#475569">${selectedLocation.address}</div>
+        </div>`,
+      )
+      .openOn(map);
 
-    const content = `<div style="font-size:12px;line-height:1.4">
-        <div style="font-weight:700;color:#111">${selectedLocation.name}</div>
-        <div style="color:#6b7280">${selectedLocation.address}</div>
-      </div>`;
+    popup.on('remove', () => onInfoCloseRef.current());
+    popupRef.current = popup;
 
-    infoWindowRef.current.setContent(content);
-    infoWindowRef.current.setPosition({ lat: selectedLocation.lat, lng: selectedLocation.lng });
-    infoWindowRef.current.open({ map });
-    infoWindowRef.current.addListener('closeclick', onInfoClose);
-    map.panTo({ lat: selectedLocation.lat, lng: selectedLocation.lng });
-  }, [locations, onInfoClose, selectedId, isReady]);
+    map.panTo([selectedLocation.lat, selectedLocation.lng], { animate: true });
+  }, [selectedId, locations, isReady]);
 
-  if (loadError) {
-    return null;
-  }
+  /* ===================== live user location ===================== */
+  useEffect(() => {
+    const L = leafletRef.current;
+    const map = mapRef.current;
+    if (!L || !map || !isReady) return;
+    if (!navigator.geolocation) return;
+
+    const icon = L.divIcon({
+      className: 'boilox-user-location',
+      html: '<span class="boilox-user-dot"></span><span class="boilox-user-ring"></span>',
+      iconSize: [18, 18],
+      iconAnchor: [9, 9],
+    });
+
+    const watchId = navigator.geolocation.watchPosition(
+      (pos) => {
+        const coords: [number, number] = [pos.coords.latitude, pos.coords.longitude];
+        if (!userMarkerRef.current) {
+          userMarkerRef.current = L.marker(coords, { icon }).addTo(map);
+        } else {
+          userMarkerRef.current.setLatLng(coords);
+        }
+        if (!hasCenteredOnUserRef.current && locations.length === 0) {
+          map.setView(coords, Math.max(map.getZoom(), 13), { animate: true });
+          hasCenteredOnUserRef.current = true;
+        }
+      },
+      () => { /* silently ignore permission denied */ },
+      { enableHighAccuracy: true, maximumAge: 10000, timeout: 10000 },
+    );
+
+    return () => {
+      navigator.geolocation.clearWatch(watchId);
+    };
+  }, [isReady, locations.length]);
+
+  if (loadError) return null;
 
   return (
     <div className="w-full h-full relative">
-      <div ref={containerRef} style={mapContainerStyle} className="w-full h-full" />
+      <div
+        ref={containerRef}
+        style={mapContainerStyle}
+        className="w-full h-full locations-leaflet-map"
+      />
       {!isLoaded && (
-        <div className="absolute inset-0 w-full h-full bg-gray-100 dark:bg-bg-dark/40 flex items-center justify-center text-gray-400 text-sm">
-          Loading map...
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-bg-dark/40 text-gray-400 text-sm">
+          Loading map…
         </div>
       )}
     </div>

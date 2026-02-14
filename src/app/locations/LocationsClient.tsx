@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { KioskLocation } from '@/lib/types';
 import MapPanel from './MapPanel';
+
+type LMap = import('leaflet').Map;
 
 interface LocationsClientProps {
   locations: KioskLocation[];
@@ -14,15 +16,8 @@ export function LocationsClient({ locations }: LocationsClientProps) {
   const [filterOpenNow, setFilterOpenNow] = useState(false);
   const [filterWheelchair, setFilterWheelchair] = useState(false);
   const [filterEBT, setFilterEBT] = useState(false);
-  const mapRef = useRef<google.maps.Map | null>(null);
+  const mapRef = useRef<LMap | null>(null);
   const [mapReady, setMapReady] = useState(false);
-  const [mapFailed, setMapFailed] = useState(false);
-
-  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-
-  useEffect(() => {
-    setMapFailed(false);
-  }, [apiKey]);
 
 
   const filteredLocations = useMemo(() => {
@@ -53,8 +48,8 @@ export function LocationsClient({ locations }: LocationsClientProps) {
     setSelectedId(loc.id);
     const map = mapRef.current;
     if (map) {
-      map.panTo({ lat: loc.lat, lng: loc.lng });
-      map.setZoom(14);
+      map.panTo([loc.lat, loc.lng]);
+      map.setZoom(14, { animate: true });
     }
   };
 
@@ -62,16 +57,16 @@ export function LocationsClient({ locations }: LocationsClientProps) {
     const map = mapRef.current;
     if (!map) return;
     const currentZoom = map.getZoom() || 12;
-    map.setZoom(direction === 'in' ? currentZoom + 1 : currentZoom - 1);
+    map.setZoom(direction === 'in' ? currentZoom + 1 : currentZoom - 1, { animate: true });
   };
 
   const handleUseMyLocation = () => {
     const map = mapRef.current;
     if (!navigator.geolocation || !map) return;
     navigator.geolocation.getCurrentPosition((pos) => {
-      const userLatLng = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      const userLatLng: [number, number] = [pos.coords.latitude, pos.coords.longitude];
       map.panTo(userLatLng);
-      map.setZoom(13);
+      map.setZoom(13, { animate: true });
     });
   };
 
@@ -232,36 +227,18 @@ export function LocationsClient({ locations }: LocationsClientProps) {
       {/* Map Content */}
       <div className="hidden lg:block flex-1 relative bg-gray-100 dark:bg-bg-dark/50">
         <div className="absolute inset-0">
-          {apiKey && !mapFailed ? (
-            <MapPanel
-              apiKey={apiKey}
-              center={center}
-              locations={locations}
-              selectedId={selectedId}
-              onMapLoad={(map) => {
-                mapRef.current = map;
-                setMapReady(Boolean(map));
-              }}
-              onMarkerClick={handleLocationClick}
-              onLoadError={() => setMapFailed(true)}
-              onInfoClose={() => setSelectedId(null)}
-            />
-          ) : (
-            <div
-              className="w-full h-full bg-cover bg-center grayscale opacity-50 contrast-125 flex items-center justify-center"
-              style={{
-                backgroundImage:
-                  'url("https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?auto=format&fit=crop&q=80&w=1200")',
-              }}
-            >
-              <div className="bg-white/90 dark:bg-surface-dark/90 border border-gray-100 dark:border-white/10 rounded-2xl px-6 py-4 text-center shadow-xl">
-                <p className="text-sm font-bold text-gray-700 dark:text-gray-200">Map preview unavailable</p>
-                <p className="text-xs text-gray-400 dark:text-gray-300">
-                  Add a Google Maps API key to enable the live map.
-                </p>
-              </div>
-            </div>
-          )}
+          <MapPanel
+            center={center}
+            locations={filteredLocations}
+            selectedId={selectedId}
+            onMapLoad={(map) => {
+              mapRef.current = map;
+              setMapReady(Boolean(map));
+            }}
+            onMarkerClick={handleLocationClick}
+            onLoadError={() => null}
+            onInfoClose={() => setSelectedId(null)}
+          />
         </div>
         <div className="pointer-events-none absolute inset-0 bg-primary/10 mix-blend-multiply"></div>
 
@@ -284,8 +261,8 @@ export function LocationsClient({ locations }: LocationsClientProps) {
           </div>
         </div>
 
-        {/* Map Controls wired to Google Maps */}
-        {apiKey && !mapFailed && mapReady && (
+        {/* Map Controls */}
+        {mapReady && (
           <div className="absolute top-8 right-8 flex flex-col gap-2">
             <button
               className="w-12 h-12 rounded-xl bg-white dark:bg-surface-dark flex items-center justify-center shadow-2xl hover:bg-gray-50 dark:hover:bg-bg-dark transition-colors"

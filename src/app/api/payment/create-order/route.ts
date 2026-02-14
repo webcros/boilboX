@@ -21,8 +21,16 @@ export async function POST(request: Request) {
     }
 
     const currency = 'INR';
-    const amount = Math.round(meal.price * quantity * 100);
-    if (!Number.isFinite(amount) || amount <= 0) {
+    const priceInRupees = meal.price ?? 0;
+
+    if (priceInRupees <= 0) {
+      return NextResponse.json({ error: 'This item has no price set. Please contact support.' }, { status: 400 });
+    }
+
+    // Razorpay expects amount in paise (smallest currency unit).
+    // Minimum order is ₹1 = 100 paise.
+    const amount = Math.max(100, Math.round(priceInRupees * quantity * 100));
+    if (!Number.isFinite(amount)) {
       return NextResponse.json({ error: 'Invalid amount.' }, { status: 400 });
     }
 

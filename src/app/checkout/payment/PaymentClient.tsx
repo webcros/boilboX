@@ -78,11 +78,9 @@ export default function PaymentClient({
     ];
   }, [currency, meal, quantity]);
 
-  const customerFields = [
-    { label: 'Name', value: customer.name || 'Not provided' },
-    { label: 'Email', value: customer.email || 'Not provided' },
-    { label: 'Phone', value: customer.phone || 'Not provided' },
-  ];
+  const [custName, setCustName] = useState(customer.name || '');
+  const [custEmail, setCustEmail] = useState(customer.email || '');
+  const [custPhone, setCustPhone] = useState(customer.phone || '');
 
   const handlePayNow = async () => {
     if (!meal || isPayingRef.current) return;
@@ -123,9 +121,9 @@ export default function PaymentClient({
         description: createOrderData.itemName || meal.name,
         order_id: createOrderData.razorpayOrderId,
         prefill: {
-          name: customer.name || undefined,
-          email: customer.email || undefined,
-          contact: customer.phone || undefined,
+          name: custName || undefined,
+          email: custEmail || undefined,
+          contact: custPhone || undefined,
         },
         notes: {
           orderId: createOrderData.orderId,
@@ -226,18 +224,39 @@ export default function PaymentClient({
           <div className="mt-10">
             <h2 className="text-lg font-black mb-4">Customer info</h2>
             <div className="space-y-3">
-              {customerFields.map((field) => (
-                <div key={field.label} className="flex flex-col gap-1">
-                  <span className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">
-                    {field.label}
-                  </span>
-                  <input
-                    readOnly
-                    value={field.value}
-                    className="h-11 rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 px-4 text-sm font-bold text-gray-700 dark:text-gray-200"
-                  />
-                </div>
-              ))}
+              <div className="flex flex-col gap-1">
+                <label htmlFor="pay-name" className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">Name</label>
+                <input
+                  id="pay-name"
+                  type="text"
+                  placeholder="Full name"
+                  value={custName}
+                  onChange={(e) => setCustName(e.target.value)}
+                  className="h-11 rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 px-4 text-sm font-bold text-gray-700 dark:text-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-primary outline-none transition-all"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label htmlFor="pay-email" className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">Email</label>
+                <input
+                  id="pay-email"
+                  type="email"
+                  placeholder="you@email.com"
+                  value={custEmail}
+                  onChange={(e) => setCustEmail(e.target.value)}
+                  className="h-11 rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 px-4 text-sm font-bold text-gray-700 dark:text-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-primary outline-none transition-all"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label htmlFor="pay-phone" className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">Phone</label>
+                <input
+                  id="pay-phone"
+                  type="tel"
+                  placeholder="+91 98765 43210"
+                  value={custPhone}
+                  onChange={(e) => setCustPhone(e.target.value)}
+                  className="h-11 rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 px-4 text-sm font-bold text-gray-700 dark:text-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-primary outline-none transition-all"
+                />
+              </div>
             </div>
           </div>
         </div>

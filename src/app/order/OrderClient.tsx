@@ -11,6 +11,9 @@ interface OrderClientProps {
 
 export default function OrderClient({ meal }: OrderClientProps) {
   const [quantity, setQuantity] = useState(1);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const router = useRouter();
 
   const total = useMemo(() => {
@@ -108,11 +111,55 @@ export default function OrderClient({ meal }: OrderClientProps) {
               <span className="text-primary">${total.toFixed(2)}</span>
             </div>
           </div>
+          <div className="mt-8 space-y-4">
+            <h3 className="text-lg font-black">Your Details</h3>
+            <div className="flex flex-col gap-1">
+              <label htmlFor="order-name" className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">Name</label>
+              <input
+                id="order-name"
+                type="text"
+                placeholder="Full name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="h-11 rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 px-4 text-sm font-bold text-gray-700 dark:text-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-primary outline-none transition-all"
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label htmlFor="order-email" className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">Email</label>
+              <input
+                id="order-email"
+                type="email"
+                placeholder="you@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="h-11 rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 px-4 text-sm font-bold text-gray-700 dark:text-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-primary outline-none transition-all"
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label htmlFor="order-phone" className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">Phone</label>
+              <input
+                id="order-phone"
+                type="tel"
+                placeholder="+91 98765 43210"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className="h-11 rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 px-4 text-sm font-bold text-gray-700 dark:text-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-primary outline-none transition-all"
+              />
+            </div>
+          </div>
           <button
             type="button"
-            className="mt-8 w-full h-14 rounded-2xl bg-primary hover:bg-primary-hover text-bg-dark font-extrabold text-sm md:text-base flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg shadow-primary/20"
+            className="mt-6 w-full h-14 rounded-2xl bg-primary hover:bg-primary-hover text-bg-dark font-extrabold text-sm md:text-base flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={!name.trim() || !email.trim() || !phone.trim()}
             onClick={() => {
-              router.push(`/checkout/payment?item=${encodeURIComponent(meal.slug)}&qty=${quantity}`);
+              const params = new URLSearchParams({
+                item: meal.slug,
+                qty: String(quantity),
+                name: name.trim(),
+                email: email.trim(),
+                phone: phone.trim(),
+              });
+              router.push(`/checkout/payment?${params.toString()}`);
             }}
           >
             Proceed to Checkout
