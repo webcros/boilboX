@@ -3,6 +3,7 @@ import {
   BlogPost,
   ImpactReport,
   KioskLocation,
+  LiveKitchenVideo,
   Meal,
   Partner,
   Story,
@@ -498,6 +499,43 @@ const mapLocationStatus = (location: any): KioskLocation['status'] => {
   }
   return 'Closed';
 };
+
+// ── Live Kitchen Videos ──────────────────────────────────────────────
+
+const liveKitchenVideoFields = `
+  _id,
+  title,
+  description,
+  "videoUrl": video.asset->url,
+  "thumbnailUrl": thumbnail.asset->url,
+  "thumbnailAlt": thumbnail.alt,
+  label,
+  featured,
+  order,
+  publishedAt
+`;
+
+export const liveKitchenVideosQuery = `*[_type == "liveKitchenVideo" && ${publishedFilter}] | order(coalesce(featured, false) desc, order asc, publishedAt desc) {${liveKitchenVideoFields}}`;
+
+export async function getLiveKitchenVideos(): Promise<LiveKitchenVideo[]> {
+  try {
+    const videos = await sanityClient.fetch(liveKitchenVideosQuery);
+    return videos.map((v: any): LiveKitchenVideo => ({
+      id: v._id,
+      title: v.title,
+      description: v.description || '',
+      videoUrl: v.videoUrl || '',
+      thumbnailUrl: v.thumbnailUrl || '',
+      thumbnailAlt: v.thumbnailAlt || '',
+      label: v.label || '',
+      featured: v.featured || false,
+      order: v.order || 0,
+      publishedAt: v.publishedAt || '',
+    }));
+  } catch {
+    return [];
+  }
+}
 
 
 

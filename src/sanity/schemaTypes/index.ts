@@ -11,7 +11,8 @@ import {storyType} from './storyType'
 import {partnerType} from './partnerType'
 import {locationType} from './locationType'
 import {userType} from './userType'
+import {liveKitchenVideoType} from './liveKitchenVideoType'
 
 export const schema: { types: SchemaTypeDefinition[] } = {
-  types: [blockContentType, categoryType, postType, authorType, mealType, impactReportType, testimonialType, storyType, partnerType, locationType, userType],
+  types: [blockContentType, categoryType, postType, authorType, mealType, impactReportType, testimonialType, storyType, partnerType, locationType, userType, liveKitchenVideoType],
 }

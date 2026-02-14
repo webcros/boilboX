@@ -113,6 +113,19 @@ export interface Partner {
   };
 }
 
+export interface LiveKitchenVideo {
+  id: string;
+  title: string;
+  description?: string;
+  videoUrl: string;
+  thumbnailUrl?: string;
+  thumbnailAlt?: string;
+  label?: string;
+  featured?: boolean;
+  order?: number;
+  publishedAt?: string;
+}
+
 export interface BlogAuthor {
   id: string;
   name: string;

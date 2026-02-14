@@ -1,6 +1,10 @@
+import { getLiveKitchenVideos } from '@/lib/sanity-queries';
 import LiveStatusToggle from './LiveStatusToggle';
+import LiveKitchenVideos from './LiveKitchenVideos';
 
-export default function LiveKitchenPage() {
+export default async function LiveKitchenPage() {
+  const videos = await getLiveKitchenVideos();
+
   return (
     <div className="px-4 md:px-10 lg:px-40 py-12 animate-fade-in">
       <div className="max-w-[1200px] mx-auto flex flex-col lg:flex-row gap-16 items-start">
@@ -67,22 +71,10 @@ export default function LiveKitchenPage() {
         </div>
 
         <div className="flex-1 w-full space-y-8">
-          <div className="relative aspect-video bg-black rounded-[2.5rem] overflow-hidden shadow-2xl group border-2 border-gray-100 dark:border-white/10">
-            <img src="https://images.unsplash.com/photo-1577106263724-2c8e03bfe9cf?auto=format&fit=crop&q=80&w=800" alt="Live kitchen" className="w-full h-full object-cover opacity-70" />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <button className="w-24 h-24 rounded-full bg-primary hover:bg-primary-hover text-bg-dark flex items-center justify-center scale-100 hover:scale-110 transition-transform shadow-2xl">
-                <span className="material-symbols-outlined !text-5xl" style={{ fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
-              </button>
-            </div>
-            <div className="absolute top-6 left-6 flex items-center gap-2 bg-black/60 backdrop-blur px-4 py-2 rounded-xl text-white">
-              <span className="material-symbols-outlined text-red-500 text-lg animate-pulse">videocam</span>
-              <span className="text-xs font-black tracking-widest uppercase">Cam 01 • Main Station</span>
-            </div>
-            <div className="absolute bottom-6 right-6 px-3 py-1 bg-black/60 backdrop-blur rounded-lg text-white font-mono text-[10px]">
-              REC • 11:42:05 AM
-            </div>
-          </div>
+          {/* Videos from Sanity CMS */}
+          <LiveKitchenVideos videos={videos} />
 
+          {/* YouTube live stream embed */}
           <div className="rounded-[2.5rem] overflow-hidden border border-gray-100 dark:border-white/10 bg-white dark:bg-surface-dark">
             <div className="aspect-video">
               <iframe
@@ -95,23 +87,6 @@ export default function LiveKitchenPage() {
             </div>
             <div className="px-6 py-4 text-sm text-gray-500 dark:text-gray-300">
               Live feed updates throughout service hours. If the stream is offline, check back soon.
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-6">
-            <div className="bg-gray-100 dark:bg-surface-dark aspect-video rounded-3xl overflow-hidden relative cursor-pointer group">
-              <img src="https://images.unsplash.com/photo-1551218808-94e220e084d2?auto=format&fit=crop&q=80&w=400" className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity" />
-              <div className="absolute inset-0 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity">
-                <span className="material-symbols-outlined text-4xl">play_circle</span>
-              </div>
-              <div className="absolute bottom-4 left-4 bg-black/40 px-2 py-1 rounded text-[10px] text-white uppercase font-bold">Cam 02 • Prep</div>
-            </div>
-            <div className="bg-gray-100 dark:bg-surface-dark aspect-video rounded-3xl overflow-hidden relative cursor-pointer group">
-              <img src="https://images.unsplash.com/photo-1590650153855-d9e808231d41?auto=format&fit=crop&q=80&w=400" className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity" />
-              <div className="absolute inset-0 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity">
-                <span className="material-symbols-outlined text-4xl">play_circle</span>
-              </div>
-              <div className="absolute bottom-4 left-4 bg-black/40 px-2 py-1 rounded text-[10px] text-white uppercase font-bold">Cam 03 • Packing</div>
             </div>
           </div>
         </div>

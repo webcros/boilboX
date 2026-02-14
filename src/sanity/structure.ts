@@ -25,7 +25,15 @@ export const structure: StructureResolver = (S) =>
             ])
         ),
       S.divider(),
+      S.listItem()
+        .title('Live Kitchen Videos')
+        .child(
+          S.documentTypeList('liveKitchenVideo')
+            .title('Live Kitchen Videos')
+            .filter('_type == "liveKitchenVideo"')
+        ),
+      S.divider(),
       ...S.documentTypeListItems().filter(
-        (item) => item.getId() && !['meal', 'post', 'category', 'author'].includes(item.getId()!),
+        (item) => item.getId() && !['meal', 'post', 'category', 'author', 'liveKitchenVideo'].includes(item.getId()!),
       ),
     ])
