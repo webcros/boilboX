@@ -2,6 +2,9 @@ import { getLiveKitchenVideos } from '@/lib/sanity-queries';
 import LiveStatusToggle from './LiveStatusToggle';
 import LiveKitchenVideos from './LiveKitchenVideos';
 
+// Always fetch fresh data on each request so newly uploaded videos appear immediately
+export const dynamic = 'force-dynamic';
+
 export default async function LiveKitchenPage() {
   const videos = await getLiveKitchenVideos();
 
