@@ -28,9 +28,9 @@ const Navbar = () => {
             <Image
               src="/BoiledboX%20Final%20Logo.png"
               alt="BoiledBoX logo"
-              width={240}
-              height={64}
-              className="h-16 w-auto"
+              width={48}
+              height={48}
+              className="h-10 w-10 object-contain"
               priority
             />
           </div>
@@ -141,9 +141,9 @@ const Footer = () => {
               <Image
                 src="/BoiledboX%20Final%20Logo.png"
                 alt="BoiledBoX logo"
-                width={200}
-                height={56}
-                className="h-14 w-auto"
+                width={40}
+                height={40}
+                className="h-9 w-9 object-contain"
               />
               <span className="font-bold text-lg text-white leading-none">BoiledBoX</span>
             </div>
