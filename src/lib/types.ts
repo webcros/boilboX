@@ -159,5 +159,42 @@ export interface BlogPost {
   body: any;
 }
 
+export interface OrderTrackingStep {
+  id: 'placed' | 'paid' | 'preparing' | 'ready' | 'completed';
+  label: string;
+  description: string;
+  status: 'completed' | 'current' | 'upcoming';
+  timestamp?: string;
+}
+
+export interface OrderTracking {
+  orderId: string;
+  paymentStatus: 'created' | 'paid';
+  fulfillmentStatus:
+    | 'payment_pending'
+    | 'payment_confirmed'
+    | 'preparing'
+    | 'ready_for_pickup'
+    | 'completed';
+  amount: number;
+  currency: string;
+  items: Array<{
+    slug: string;
+    name: string;
+    unitPrice: number;
+    quantity: number;
+    lineTotal: number;
+  }>;
+  customer?: {
+    name?: string;
+    email?: string;
+    phone?: string;
+  };
+  createdAt: string;
+  paidAt?: string;
+  etaMinutes: number | null;
+  steps: OrderTrackingStep[];
+}
+
 
 

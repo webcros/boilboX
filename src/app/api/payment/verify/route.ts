@@ -1,5 +1,10 @@
 import { NextResponse } from 'next/server';
-import { getOrder, markOrderPaid, verifyRazorpaySignature } from '@/lib/razorpay';
+import {
+  getOrder,
+  getOrderTracking,
+  markOrderPaid,
+  verifyRazorpaySignature,
+} from '@/lib/razorpay';
 
 export const runtime = 'nodejs';
 
@@ -30,10 +35,12 @@ export async function POST(request: Request) {
       if (stored?.razorpayOrderId && stored.razorpayOrderId !== razorpayOrderId) {
         return NextResponse.json({ error: 'Order mismatch.' }, { status: 400 });
       }
-      markOrderPaid(orderId);
+      markOrderPaid(orderId, razorpayPaymentId);
     }
 
-    return NextResponse.json({ success: true, status: 'paid' });
+    const tracking = orderId ? getOrderTracking(orderId) : null;
+
+    return NextResponse.json({ success: true, status: 'paid', tracking });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';
     return NextResponse.json({ error: message }, { status: 500 });

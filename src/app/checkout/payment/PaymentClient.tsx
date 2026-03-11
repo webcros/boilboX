@@ -3,7 +3,7 @@
 import { useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import type { Meal } from '@/lib/types';
+import { useCart } from '@/context/CartContext';
 
 declare global {
   interface Window {
@@ -11,9 +11,16 @@ declare global {
   }
 }
 
-interface PaymentClientProps {
-  meal: Meal | null;
+interface CheckoutItem {
+  slug: string;
+  name: string;
   quantity: number;
+  unitPrice: number;
+  lineTotal: number;
+}
+
+interface PaymentClientProps {
+  items: CheckoutItem[];
   total: number;
   currency: string;
   customer: {
@@ -36,7 +43,9 @@ const loadRazorpayScript = () => {
       return;
     }
 
-    const existing = document.getElementById('razorpay-checkout-js') as HTMLScriptElement | null;
+    const existing = document.getElementById(
+      'razorpay-checkout-js'
+    ) as HTMLScriptElement | null;
     if (existing) {
       existing.addEventListener('load', () => resolve(true));
       existing.addEventListener('error', () => resolve(false));
@@ -53,37 +62,49 @@ const loadRazorpayScript = () => {
   });
 };
 
+const formatCurrency = (currency: string, value: number) => {
+  try {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(value);
+  } catch {
+    return `${currency} ${value.toFixed(2)}`;
+  }
+};
+
 export default function PaymentClient({
-  meal,
-  quantity,
+  items,
   total,
   currency,
   customer,
   razorpayKeyId,
 }: PaymentClientProps) {
   const router = useRouter();
+  const { clearCart } = useCart();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const isPayingRef = useRef(false);
 
   const summaryRows = useMemo(() => {
-    if (!meal) return [];
     return [
-      {
-        label: `${meal.name} × ${quantity}`,
-        value: `${currency} ${(meal.price * quantity).toFixed(2)}`,
-      },
-      { label: 'Estimated tax', value: `${currency} 0.00` },
+      ...items.map((item) => ({
+        label: `${item.name} x ${item.quantity}`,
+        value: formatCurrency(currency, item.lineTotal),
+      })),
+      { label: 'Estimated tax', value: formatCurrency(currency, 0) },
       { label: 'Pickup', value: 'Free' },
     ];
-  }, [currency, meal, quantity]);
+  }, [currency, items]);
 
   const [custName, setCustName] = useState(customer.name || '');
   const [custEmail, setCustEmail] = useState(customer.email || '');
   const [custPhone, setCustPhone] = useState(customer.phone || '');
 
   const handlePayNow = async () => {
-    if (!meal || isPayingRef.current) return;
+    if (items.length === 0 || isPayingRef.current) return;
     if (!razorpayKeyId) {
       setError('Payment configuration is missing. Please try again later.');
       return;
@@ -98,8 +119,15 @@ export default function PaymentClient({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          itemSlug: meal.slug,
-          quantity,
+          items: items.map((item) => ({
+            slug: item.slug,
+            quantity: item.quantity,
+          })),
+          customer: {
+            name: custName || undefined,
+            email: custEmail || undefined,
+            phone: custPhone || undefined,
+          },
         }),
       });
 
@@ -118,7 +146,9 @@ export default function PaymentClient({
         amount: createOrderData.amount,
         currency: createOrderData.currency,
         name: 'BoilboX',
-        description: createOrderData.itemName || meal.name,
+        description:
+          createOrderData.itemName ||
+          (items.length === 1 ? items[0].name : `${items.length} items`),
         order_id: createOrderData.razorpayOrderId,
         prefill: {
           name: custName || undefined,
@@ -127,7 +157,6 @@ export default function PaymentClient({
         },
         notes: {
           orderId: createOrderData.orderId,
-          item: meal.slug,
         },
         handler: async (response: {
           razorpay_order_id: string;
@@ -149,9 +178,15 @@ export default function PaymentClient({
               throw new Error(verifyData?.error || 'Payment verification failed.');
             }
 
-            router.push(`/order/success?orderId=${encodeURIComponent(createOrderData.orderId)}`);
+            clearCart();
+            router.push(
+              `/order/success?orderId=${encodeURIComponent(createOrderData.orderId)}`
+            );
           } catch (verifyError) {
-            const message = verifyError instanceof Error ? verifyError.message : 'Payment verification failed.';
+            const message =
+              verifyError instanceof Error
+                ? verifyError.message
+                : 'Payment verification failed.';
             setError(message);
             setIsLoading(false);
             isPayingRef.current = false;
@@ -169,35 +204,48 @@ export default function PaymentClient({
       };
 
       const razorpay = new window.Razorpay(options);
-      razorpay.on('payment.failed', (response: { error?: { description?: string } }) => {
-        const message = response?.error?.description || 'Payment failed. Please try again.';
-        setError(message);
-        setIsLoading(false);
-        isPayingRef.current = false;
-      });
+      razorpay.on(
+        'payment.failed',
+        (response: { error?: { description?: string } }) => {
+          const message =
+            response?.error?.description || 'Payment failed. Please try again.';
+          setError(message);
+          setIsLoading(false);
+          isPayingRef.current = false;
+        }
+      );
       razorpay.open();
     } catch (payError) {
-      const message = payError instanceof Error ? payError.message : 'Payment failed. Please try again.';
+      const message =
+        payError instanceof Error ? payError.message : 'Payment failed. Please try again.';
       setError(message);
       setIsLoading(false);
       isPayingRef.current = false;
     }
   };
 
-  if (!meal) {
+  if (items.length === 0) {
     return (
       <div className="px-4 md:px-10 lg:px-40 py-24 animate-fade-in">
         <div className="max-w-3xl mx-auto text-center bg-white dark:bg-surface-dark border border-gray-100 dark:border-white/10 rounded-3xl p-12">
           <h1 className="text-3xl md:text-4xl font-black mb-4">Your order is empty</h1>
           <p className="text-gray-500 dark:text-gray-300 mb-8">
-            Add a meal to your order before continuing to payment.
+            Add meals to your cart before continuing to payment.
           </p>
-          <Link
-            href="/menu"
-            className="h-12 px-8 rounded-2xl bg-primary hover:bg-primary-hover text-bg-dark font-extrabold inline-flex items-center justify-center"
-          >
-            Browse Menu
-          </Link>
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <Link
+              href="/menu"
+              className="h-12 px-8 rounded-2xl bg-primary hover:bg-primary-hover text-bg-dark font-extrabold inline-flex items-center justify-center"
+            >
+              Browse Menu
+            </Link>
+            <Link
+              href="/cart"
+              className="h-12 px-8 rounded-2xl border border-gray-200 dark:border-white/10 font-bold inline-flex items-center justify-center hover:bg-gray-50 dark:hover:bg-white/5"
+            >
+              Go to Cart
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -210,14 +258,14 @@ export default function PaymentClient({
           <h1 className="text-2xl md:text-3xl font-black mb-6">Order Summary</h1>
           <div className="space-y-4 text-sm">
             {summaryRows.map((row) => (
-              <div key={row.label} className="flex justify-between">
+              <div key={row.label} className="flex justify-between gap-4">
                 <span className="text-gray-500 dark:text-gray-300">{row.label}</span>
-                <span className="font-bold">{row.value}</span>
+                <span className="font-bold text-right">{row.value}</span>
               </div>
             ))}
             <div className="border-t border-dashed border-gray-200 dark:border-white/10 pt-4 flex justify-between text-lg font-black">
               <span>Total</span>
-              <span className="text-primary">{`${currency} ${total.toFixed(2)}`}</span>
+              <span className="text-primary">{formatCurrency(currency, total)}</span>
             </div>
           </div>
 
@@ -225,7 +273,12 @@ export default function PaymentClient({
             <h2 className="text-lg font-black mb-4">Customer info</h2>
             <div className="space-y-3">
               <div className="flex flex-col gap-1">
-                <label htmlFor="pay-name" className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">Name</label>
+                <label
+                  htmlFor="pay-name"
+                  className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400"
+                >
+                  Name
+                </label>
                 <input
                   id="pay-name"
                   type="text"
@@ -236,7 +289,12 @@ export default function PaymentClient({
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <label htmlFor="pay-email" className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">Email</label>
+                <label
+                  htmlFor="pay-email"
+                  className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400"
+                >
+                  Email
+                </label>
                 <input
                   id="pay-email"
                   type="email"
@@ -247,7 +305,12 @@ export default function PaymentClient({
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <label htmlFor="pay-phone" className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">Phone</label>
+                <label
+                  htmlFor="pay-phone"
+                  className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400"
+                >
+                  Phone
+                </label>
                 <input
                   id="pay-phone"
                   type="tel"
@@ -264,8 +327,8 @@ export default function PaymentClient({
         <div className="bg-white dark:bg-surface-dark border border-gray-100 dark:border-white/10 rounded-3xl p-8">
           <h2 className="text-2xl font-black mb-4">Payment</h2>
           <p className="text-sm text-gray-500 dark:text-gray-300 mb-6">
-            Complete your purchase securely via Razorpay. Your payment is processed on a secure
-            gateway.
+            Complete your purchase securely via Razorpay. Your payment is processed on
+            a secure gateway.
           </p>
           {error && (
             <div className="mb-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-200">
@@ -278,14 +341,16 @@ export default function PaymentClient({
             onClick={handlePayNow}
             disabled={isLoading}
           >
-            {isLoading ? 'Processing Payment…' : 'Pay Now'}
+            {isLoading ? 'Processing Payment...' : 'Pay Now'}
             <span className="material-symbols-outlined text-lg">lock</span>
           </button>
           <div className="mt-4 text-xs text-gray-400 dark:text-gray-300">
-            By continuing you agree to the payment terms and confirmation will be sent after success.
+            By continuing you agree to the payment terms and confirmation will be sent
+            after success.
           </div>
         </div>
       </div>
     </div>
   );
 }
+

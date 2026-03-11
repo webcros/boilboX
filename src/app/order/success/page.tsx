@@ -29,8 +29,14 @@ export default function OrderSuccessPage({
         )}
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
-            href="/menu"
+            href={orderId ? `/track-order?orderId=${encodeURIComponent(orderId)}` : '/track-order'}
             className="h-12 px-8 rounded-2xl bg-primary hover:bg-primary-hover text-bg-dark font-extrabold flex items-center justify-center"
+          >
+            Track Order
+          </Link>
+          <Link
+            href="/menu"
+            className="h-12 px-8 rounded-2xl border border-gray-200 dark:border-white/10 font-bold flex items-center justify-center hover:bg-gray-50 dark:hover:bg-white/5"
           >
             Order More
           </Link>

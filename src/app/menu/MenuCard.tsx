@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import type { KeyboardEvent, MouseEvent } from 'react';
+import { useCart } from '@/context/CartContext';
 import type { Meal } from '@/lib/types';
 
 interface MenuCardProps {
@@ -10,6 +11,7 @@ interface MenuCardProps {
 
 export default function MenuCard({ meal }: MenuCardProps) {
   const router = useRouter();
+  const { addItem } = useCart();
 
   const handleNavigate = () => {
     router.push(`/menu/${meal.slug}`);
@@ -22,9 +24,9 @@ export default function MenuCard({ meal }: MenuCardProps) {
     }
   };
 
-  const handleAddToOrder = (event: MouseEvent<HTMLButtonElement>) => {
+  const handleAddToCart = (event: MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
-    router.push(`/order?item=${meal.slug}`);
+    addItem(meal, 1);
   };
 
   const handleQuickView = (event: MouseEvent<HTMLButtonElement>) => {
@@ -106,10 +108,10 @@ export default function MenuCard({ meal }: MenuCardProps) {
         <div className="mt-auto flex gap-3">
           <button
             type="button"
-            onClick={handleAddToOrder}
+            onClick={handleAddToCart}
             className="flex-1 h-12 md:h-13 rounded-2xl bg-primary hover:bg-primary-hover text-bg-dark font-extrabold text-sm md:text-[0.9rem] flex items-center justify-center gap-2 transition-all active:scale-[0.97] shadow-md shadow-primary/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
           >
-            Add to Order
+            Add to Cart
             <span className="material-symbols-outlined text-base md:text-lg">add_circle</span>
           </button>
           <button

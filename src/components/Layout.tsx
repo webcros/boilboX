@@ -4,15 +4,20 @@ import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
 import { useTheme } from '@/context/ThemeContext';
+import { useCart } from '@/context/CartContext';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
+  const { itemCount } = useCart();
+  const { user, isLoading } = useAuth();
   const pathname = usePathname();
 
   const navLinks = [
     { name: 'Menu', path: '/menu' },
+    { name: 'Track Order', path: '/track-order' },
     { name: 'Our Model', path: '/model' },
     { name: 'Our Story', path: '/story' },
     { name: 'Social Impact', path: '/impact' },
@@ -26,11 +31,19 @@ const Navbar = () => {
         <Link href="/" className="flex items-center gap-2 group">
           <div className="group-hover:scale-110 transition-transform">
             <Image
+              src="/updated_logo.png"
+              alt="BoiledBoX logo"
+              width={48}
+              height={48}
+              className="h-10 w-10 object-contain dark:hidden"
+              priority
+            />
+            <Image
               src="/BoiledboX%20Final%20Logo.png"
               alt="BoiledBoX logo"
               width={48}
               height={48}
-              className="h-10 w-10 object-contain"
+              className="h-10 w-10 object-contain hidden dark:block"
               priority
             />
           </div>
@@ -50,6 +63,19 @@ const Navbar = () => {
         </div>
 
         <div className="flex items-center gap-4">
+          <Link
+            href="/cart"
+            className="relative p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+            aria-label="View cart"
+          >
+            <span className="material-symbols-outlined text-gray-700 dark:text-gray-300">shopping_cart</span>
+            {itemCount > 0 && (
+              <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-primary text-bg-dark text-[10px] font-black flex items-center justify-center">
+                {itemCount > 99 ? '99+' : itemCount}
+              </span>
+            )}
+          </Link>
+
           {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
@@ -62,6 +88,23 @@ const Navbar = () => {
               <span className="material-symbols-outlined text-yellow-500">light_mode</span>
             )}
           </button>
+          {!isLoading && (
+            user ? (
+              <Link
+                href="/profile"
+                className="hidden sm:inline-flex h-10 px-4 items-center justify-center rounded-lg border border-gray-200 dark:border-white/10 text-sm font-bold hover:bg-gray-50 dark:hover:bg-white/5"
+              >
+                Profile
+              </Link>
+            ) : (
+              <Link
+                href="/signin"
+                className="hidden sm:inline-flex h-10 px-4 items-center justify-center rounded-lg border border-gray-200 dark:border-white/10 text-sm font-bold hover:bg-gray-50 dark:hover:bg-white/5"
+              >
+                Sign In
+              </Link>
+            )
+          )}
 
           <Link href="/locations" className="hidden sm:flex h-10 px-5 items-center justify-center rounded-lg bg-primary hover:bg-primary-hover transition-colors text-bg-dark text-sm font-bold">
             Find a Kiosk
@@ -102,6 +145,14 @@ const Navbar = () => {
                 {link.name}
               </Link>
             ))}
+            <Link href="/cart" onClick={() => setIsMenuOpen(false)} className="text-lg font-bold hover:text-primary px-2">
+              Cart {itemCount > 0 ? `(${itemCount})` : ''}
+            </Link>
+            {!isLoading && (
+              <Link href={user ? '/profile' : '/signin'} onClick={() => setIsMenuOpen(false)} className="text-lg font-bold hover:text-primary px-2">
+                {user ? 'Profile' : 'Sign In'}
+              </Link>
+            )}
             <Link href="/locations" onClick={() => setIsMenuOpen(false)} className="bg-primary text-bg-dark text-center py-3 rounded-xl font-bold">
               Find a Kiosk
             </Link>
@@ -123,6 +174,7 @@ const Footer = () => {
 
   const supportLinks = [
     { label: 'Contact', href: '/contact' },
+    { label: 'Track Order', href: '/track-order' },
     { label: 'Nutrition Lookup', href: '/nutrition' },
     { label: 'Blog', href: '/blog' },
   ];
@@ -139,11 +191,18 @@ const Footer = () => {
           <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-2 mb-4">
               <Image
+                src="/updated_logo.png"
+                alt="BoiledBoX logo"
+                width={40}
+                height={40}
+                className="h-9 w-9 object-contain dark:hidden"
+              />
+              <Image
                 src="/BoiledboX%20Final%20Logo.png"
                 alt="BoiledBoX logo"
                 width={40}
                 height={40}
-                className="h-9 w-9 object-contain"
+                className="h-9 w-9 object-contain hidden dark:block"
               />
               <span className="font-bold text-lg text-white leading-none">BoiledBoX</span>
             </div>
@@ -201,6 +260,3 @@ export const Layout = ({ children }: { children: React.ReactNode }) => (
     <Footer />
   </div>
 );
-
-
-

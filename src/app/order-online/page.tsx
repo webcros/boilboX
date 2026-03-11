@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { getMeals } from '@/lib/sanity-queries';
+import AddToCartButton from '@/components/AddToCartButton';
 
 export const metadata = {
   title: 'Order Online | BoilboX',
@@ -38,13 +39,17 @@ export default async function OrderOnlinePage() {
                     <span className="text-primary">${meal.price.toFixed(2)}</span>
                     <Link href={`/menu/${meal.slug}`} className="text-primary">Nutrition</Link>
                   </div>
-                  <Link
-                    href={`/order?item=${meal.slug}`}
-                    className="inline-flex items-center gap-2 h-11 px-4 rounded-xl bg-primary hover:bg-primary-hover text-bg-dark font-extrabold"
-                  >
-                    Add to Order
-                    <span className="material-symbols-outlined text-base">add_circle</span>
-                  </Link>
+                  <AddToCartButton
+                    meal={{
+                      slug: meal.slug,
+                      name: meal.name,
+                      image: meal.image,
+                      imageAlt: meal.imageAlt,
+                      price: meal.price,
+                      category: meal.category,
+                    }}
+                    className="inline-flex items-center justify-center gap-2 h-11 px-4 rounded-xl bg-primary hover:bg-primary-hover text-bg-dark font-extrabold"
+                  />
                 </div>
               </div>
             ))}

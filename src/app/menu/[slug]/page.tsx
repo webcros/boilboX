@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getMealBySlug } from '@/lib/sanity-queries';
+import AddToCartButton from '@/components/AddToCartButton';
 
 interface MenuDetailPageProps {
   params: { slug: string };
@@ -116,12 +117,22 @@ export default async function MenuDetailPage({ params }: MenuDetailPageProps) {
               <p className="text-3xl font-black text-primary">${meal.price.toFixed(2)}</p>
             </div>
             <div className="flex flex-col gap-4">
+              <AddToCartButton
+                meal={{
+                  slug: meal.slug,
+                  name: meal.name,
+                  image: meal.image,
+                  imageAlt: meal.imageAlt,
+                  price: meal.price,
+                  category: meal.category,
+                }}
+                className="h-14 rounded-2xl bg-primary hover:bg-primary-hover text-bg-dark font-extrabold text-sm md:text-base flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg shadow-primary/20"
+              />
               <Link
                 href={`/order?item=${meal.slug}`}
-                className="h-14 rounded-2xl bg-primary hover:bg-primary-hover text-bg-dark font-extrabold text-sm md:text-base flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg shadow-primary/20"
+                className="h-12 rounded-2xl border border-gray-200 dark:border-white/10 text-sm font-bold flex items-center justify-center hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
               >
-                Add to Order
-                <span className="material-symbols-outlined text-lg">add_circle</span>
+                Buy Now
               </Link>
               <Link
                 href="/menu"

@@ -1,80 +1,83 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from 'react';
+import type { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 
-interface User {
+export interface AuthUser {
+  id: string;
   email: string;
   name: string;
   picture?: string;
+  phone?: string;
+  createdAt?: string;
 }
 
 interface AuthContextType {
-  user: User | null;
+  user: AuthUser | null;
   isLoading: boolean;
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
+  updateProfile: (input: { name?: string; phone?: string }) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const mapSessionUser = (sessionUser: User | null): AuthUser | null => {
+  if (!sessionUser || typeof sessionUser.email !== 'string') return null;
+
+  return {
+    id: sessionUser.id,
+    email: sessionUser.email,
+    name:
+      sessionUser.user_metadata?.full_name ||
+      sessionUser.user_metadata?.name ||
+      sessionUser.email,
+    picture:
+      sessionUser.user_metadata?.avatar_url ||
+      sessionUser.user_metadata?.picture ||
+      undefined,
+    phone:
+      sessionUser.user_metadata?.phone ||
+      (typeof sessionUser.phone === 'string' ? sessionUser.phone : undefined),
+    createdAt: sessionUser.created_at,
+  };
+};
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Get initial session
-    const getUserSession = async () => {
+    const init = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user) {
-          // Check if user has admin role
-          const isAdmin = await checkUserAdminRole(session.user.email!);
-          if (isAdmin) {
-            setUser({
-              email: session.user.email!,
-              name: session.user.user_metadata.full_name || session.user.email,
-              picture: session.user.user_metadata.avatar_url,
-            });
-          } else {
-            // User doesn't have admin role, sign them out
-            await supabase.auth.signOut();
-            setUser(null);
-          }
-        }
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        setUser(session?.user ? mapSessionUser(session.user) : null);
       } catch (error) {
-        console.error('Error getting session:', error);
+        console.error('Error loading auth session:', error);
         setUser(null);
       } finally {
         setIsLoading(false);
       }
     };
 
-    getUserSession();
+    init();
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (event === 'SIGNED_IN' && session?.user) {
-          // Check if user has admin role
-          const isAdmin = await checkUserAdminRole(session.user.email!);
-          if (isAdmin) {
-            setUser({
-              email: session.user.email!,
-              name: session.user.user_metadata.full_name || session.user.email,
-              picture: session.user.user_metadata.avatar_url,
-            });
-          } else {
-            // User doesn't have admin role, sign them out
-            await supabase.auth.signOut();
-            window.location.href = '/login?error=access_denied';
-          }
-        } else if (event === 'SIGNED_OUT') {
-          setUser(null);
-        }
-        setIsLoading(false);
-      }
-    );
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ? mapSessionUser(session.user) : null);
+      setIsLoading(false);
+    });
 
     return () => {
       subscription.unsubscribe();
@@ -82,15 +85,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signInWithGoogle = async () => {
+    const redirectTo = `${window.location.origin}/auth/callback`;
+
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/api/auth/google`,
-      }
+        redirectTo,
+      },
     });
 
     if (error) {
-      console.error('Error signing in:', error);
       throw error;
     }
   };
@@ -98,32 +102,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) {
-      console.error('Error signing out:', error);
+      throw error;
+    }
+    setUser(null);
+  };
+
+  const updateProfile = async (input: { name?: string; phone?: string }) => {
+    const name = input.name?.trim();
+    const phone = input.phone?.trim();
+
+    const { data, error } = await supabase.auth.updateUser({
+      data: {
+        full_name: name,
+        phone,
+      },
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    if (data?.user) {
+      setUser(mapSessionUser(data.user));
     }
   };
 
-  const checkUserAdminRole = async (email: string): Promise<boolean> => {
-    try {
-      // Check if user is in the admin emails list from environment variables
-      // Since we're on the client, we can't access env vars directly
-      // We'll rely on the server-side check in the API route
-      
-      // For now, just return true if we have a session and let the server handle the admin check
-      // In a real implementation, you might fetch this from an API endpoint
-      const response = await fetch(`/api/check-admin?email=${encodeURIComponent(email)}`);
-      const data = await response.json();
-      return data.isAdmin;
-    } catch (error) {
-      console.error('Error checking admin role:', error);
-      return false;
-    }
-  };
-
-  return (
-    <AuthContext.Provider value={{ user, isLoading, signInWithGoogle, signOut }}>
-      {children}
-    </AuthContext.Provider>
+  const value = useMemo(
+    () => ({
+      user,
+      isLoading,
+      signInWithGoogle,
+      signOut,
+      updateProfile,
+    }),
+    [isLoading, user]
   );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
