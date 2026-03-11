@@ -1,19 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 
 export default function AuthCallbackPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
-
-  const code = searchParams.get('code');
-  const nextPath = searchParams.get('next') || '/profile';
-  const oauthError =
-    searchParams.get('error_description') || searchParams.get('error');
 
   const toFriendlyError = (message: string) => {
     if (message.toLowerCase().includes('invalid api key')) {
@@ -29,6 +23,12 @@ export default function AuthCallbackPage() {
       let unsubscribe: (() => void) | null = null;
 
       try {
+        const params = new URLSearchParams(window.location.search);
+        const code = params.get('code');
+        const nextPath = params.get('next') || '/profile';
+        const oauthError =
+          params.get('error_description') || params.get('error');
+
         const {
           data: { subscription },
         } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -134,7 +134,7 @@ export default function AuthCallbackPage() {
     return () => {
       cancelled = true;
     };
-  }, [code, nextPath, oauthError, router]);
+  }, [router]);
 
   return (
     <div className="px-4 md:px-10 lg:px-40 py-24 animate-fade-in">
