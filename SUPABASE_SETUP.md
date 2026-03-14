@@ -106,3 +106,8 @@ CREATE TRIGGER on_auth_user_created
 
 **Issue**: Supabase connection fails
 - Solution: Verify your Supabase URL and API keys are correct in the environment variables
+
+## Cart And Orders Schema
+
+To enable account-bound carts and order history, run the SQL in
+`supabase_migration_auth_cart_orders.sql` from the Supabase SQL editor.

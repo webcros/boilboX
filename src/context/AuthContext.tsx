@@ -1,15 +1,16 @@
-'use client';
+"use client";
 
+import type { User } from "@supabase/supabase-js";
 import {
   createContext,
+  type ReactNode,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
   useState,
-  type ReactNode,
-} from 'react';
-import type { User } from '@supabase/supabase-js';
-import { supabase } from '@/lib/supabase';
+} from "react";
+import { supabase } from "@/lib/supabase";
 
 export interface AuthUser {
   id: string;
@@ -23,7 +24,7 @@ export interface AuthUser {
 interface AuthContextType {
   user: AuthUser | null;
   isLoading: boolean;
-  signInWithGoogle: () => Promise<void>;
+  signInWithGoogle: (nextPath?: string) => Promise<void>;
   signOut: () => Promise<void>;
   updateProfile: (input: { name?: string; phone?: string }) => Promise<void>;
 }
@@ -31,7 +32,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const mapSessionUser = (sessionUser: User | null): AuthUser | null => {
-  if (!sessionUser || typeof sessionUser.email !== 'string') return null;
+  if (!sessionUser || typeof sessionUser.email !== "string") return null;
 
   return {
     id: sessionUser.id,
@@ -46,7 +47,7 @@ const mapSessionUser = (sessionUser: User | null): AuthUser | null => {
       undefined,
     phone:
       sessionUser.user_metadata?.phone ||
-      (typeof sessionUser.phone === 'string' ? sessionUser.phone : undefined),
+      (typeof sessionUser.phone === "string" ? sessionUser.phone : undefined),
     createdAt: sessionUser.created_at,
   };
 };
@@ -63,7 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } = await supabase.auth.getSession();
         setUser(session?.user ? mapSessionUser(session.user) : null);
       } catch (error) {
-        console.error('Error loading auth session:', error);
+        console.error("Error loading auth session:", error);
         setUser(null);
       } finally {
         setIsLoading(false);
@@ -84,48 +85,59 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const signInWithGoogle = async () => {
-    const redirectTo = `${window.location.origin}/auth/callback`;
+  const signInWithGoogle = useCallback(
+    async (nextPath: string = "/profile") => {
+      const safeNextPath =
+        nextPath.startsWith("/") && !nextPath.startsWith("//")
+          ? nextPath
+          : "/profile";
+      const redirectTo = new URL("/auth/callback", window.location.origin);
+      redirectTo.searchParams.set("next", safeNextPath);
 
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo,
-      },
-    });
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: redirectTo.toString(),
+        },
+      });
 
-    if (error) {
-      throw error;
-    }
-  };
+      if (error) {
+        throw error;
+      }
+    },
+    [],
+  );
 
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     const { error } = await supabase.auth.signOut();
     if (error) {
       throw error;
     }
     setUser(null);
-  };
+  }, []);
 
-  const updateProfile = async (input: { name?: string; phone?: string }) => {
-    const name = input.name?.trim();
-    const phone = input.phone?.trim();
+  const updateProfile = useCallback(
+    async (input: { name?: string; phone?: string }) => {
+      const name = input.name?.trim();
+      const phone = input.phone?.trim();
 
-    const { data, error } = await supabase.auth.updateUser({
-      data: {
-        full_name: name,
-        phone,
-      },
-    });
+      const { data, error } = await supabase.auth.updateUser({
+        data: {
+          full_name: name,
+          phone,
+        },
+      });
 
-    if (error) {
-      throw error;
-    }
+      if (error) {
+        throw error;
+      }
 
-    if (data?.user) {
-      setUser(mapSessionUser(data.user));
-    }
-  };
+      if (data?.user) {
+        setUser(mapSessionUser(data.user));
+      }
+    },
+    [],
+  );
 
   const value = useMemo(
     () => ({
@@ -135,7 +147,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signOut,
       updateProfile,
     }),
-    [isLoading, user]
+    [isLoading, signInWithGoogle, signOut, updateProfile, user],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -144,7 +156,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }

@@ -1,15 +1,18 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useMemo } from 'react';
-import { useCart } from '@/context/CartContext';
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useMemo } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { useCart } from "@/context/CartContext";
 
 const formatPrice = (value: number) => `INR ${value.toFixed(2)}`;
 
 export default function CartClient() {
   const router = useRouter();
-  const { items, itemCount, subtotal, updateQuantity, removeItem, clearCart } = useCart();
+  const { user, isLoading: isAuthLoading } = useAuth();
+  const { items, itemCount, subtotal, updateQuantity, removeItem, clearCart } =
+    useCart();
 
   const serializedItems = useMemo(
     () =>
@@ -17,16 +20,24 @@ export default function CartClient() {
         items.map((item) => ({
           slug: item.slug,
           quantity: item.quantity,
-        }))
+        })),
       ),
-    [items]
+    [items],
   );
+  const checkoutPath = useMemo(() => {
+    const params = new URLSearchParams({
+      items: serializedItems,
+    });
+    return `/checkout/payment?${params.toString()}`;
+  }, [serializedItems]);
 
   if (items.length === 0) {
     return (
       <div className="px-4 md:px-10 lg:px-40 py-24 animate-fade-in">
         <div className="max-w-3xl mx-auto text-center bg-white dark:bg-surface-dark border border-gray-100 dark:border-white/10 rounded-3xl p-12">
-          <h1 className="text-3xl md:text-4xl font-black mb-4">Your cart is empty</h1>
+          <h1 className="text-3xl md:text-4xl font-black mb-4">
+            Your cart is empty
+          </h1>
           <p className="text-gray-500 dark:text-gray-300 mb-8">
             Add meals from the menu to start building your order.
           </p>
@@ -56,7 +67,7 @@ export default function CartClient() {
           <div className="flex items-center justify-between gap-4 mb-6">
             <h1 className="text-3xl md:text-4xl font-black">Your Cart</h1>
             <span className="text-xs uppercase tracking-[0.18em] text-gray-400">
-              {itemCount} {itemCount === 1 ? 'item' : 'items'}
+              {itemCount} {itemCount === 1 ? "item" : "items"}
             </span>
           </div>
 
@@ -84,7 +95,9 @@ export default function CartClient() {
                       {item.category}
                     </p>
                     <h2 className="text-lg font-black truncate">{item.name}</h2>
-                    <p className="text-sm text-primary font-bold">{formatPrice(item.price)}</p>
+                    <p className="text-sm text-primary font-bold">
+                      {formatPrice(item.price)}
+                    </p>
                   </div>
 
                   <button
@@ -101,16 +114,22 @@ export default function CartClient() {
                   <div className="inline-flex items-center gap-3 rounded-full border border-gray-200 dark:border-white/10 px-4 py-2">
                     <button
                       type="button"
-                      onClick={() => updateQuantity(item.slug, item.quantity - 1)}
+                      onClick={() =>
+                        updateQuantity(item.slug, item.quantity - 1)
+                      }
                       className="w-8 h-8 rounded-full bg-gray-100 dark:bg-white/10 flex items-center justify-center font-black"
                       aria-label={`Decrease quantity for ${item.name}`}
                     >
                       -
                     </button>
-                    <span className="text-lg font-black w-8 text-center">{item.quantity}</span>
+                    <span className="text-lg font-black w-8 text-center">
+                      {item.quantity}
+                    </span>
                     <button
                       type="button"
-                      onClick={() => updateQuantity(item.slug, item.quantity + 1)}
+                      onClick={() =>
+                        updateQuantity(item.slug, item.quantity + 1)
+                      }
                       className="w-8 h-8 rounded-full bg-gray-100 dark:bg-white/10 flex items-center justify-center font-black"
                       aria-label={`Increase quantity for ${item.name}`}
                     >
@@ -148,19 +167,35 @@ export default function CartClient() {
             </div>
           </div>
 
-          <button
-            type="button"
-            className="mt-8 w-full h-14 rounded-2xl bg-primary hover:bg-primary-hover text-bg-dark font-extrabold text-sm md:text-base flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg shadow-primary/20"
-            onClick={() => {
-              const params = new URLSearchParams({
-                items: serializedItems,
-              });
-              router.push(`/checkout/payment?${params.toString()}`);
-            }}
-          >
-            Proceed to Checkout
-            <span className="material-symbols-outlined text-lg">arrow_forward</span>
-          </button>
+          {user ? (
+            <button
+              type="button"
+              className="mt-8 w-full h-14 rounded-2xl bg-primary hover:bg-primary-hover text-bg-dark font-extrabold text-sm md:text-base flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg shadow-primary/20"
+              onClick={() => {
+                router.push(checkoutPath);
+              }}
+            >
+              Proceed to Checkout
+              <span className="material-symbols-outlined text-lg">
+                arrow_forward
+              </span>
+            </button>
+          ) : (
+            <Link
+              href={`/signin?next=${encodeURIComponent(checkoutPath)}`}
+              className="mt-8 w-full h-14 rounded-2xl bg-primary hover:bg-primary-hover text-bg-dark font-extrabold text-sm md:text-base flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg shadow-primary/20"
+            >
+              Sign In to Checkout
+              <span className="material-symbols-outlined text-lg">login</span>
+            </Link>
+          )}
+
+          {!user && !isAuthLoading && (
+            <p className="mt-3 text-xs text-gray-500 dark:text-gray-300">
+              You can save items in your cart, but payment and order creation
+              require a signed-in account.
+            </p>
+          )}
 
           <button
             type="button"

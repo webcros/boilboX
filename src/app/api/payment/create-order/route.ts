@@ -1,20 +1,35 @@
-import { NextResponse } from 'next/server';
-import { getMealBySlug } from '@/lib/sanity-queries';
+import crypto from "node:crypto";
+import { NextResponse } from "next/server";
+import { createRazorpayOrder } from "@/lib/razorpay";
+import { getMealBySlug } from "@/lib/sanity-queries";
 import {
-  attachRazorpayOrder,
-  createInternalOrder,
-  createRazorpayOrder,
-} from '@/lib/razorpay';
+  AuthenticationError,
+  requireAuthenticatedRequest,
+} from "@/lib/server-auth";
 
-export const runtime = 'nodejs';
+export const runtime = "nodejs";
+
+interface CreateOrderRequestBody {
+  items?: Array<{
+    slug?: unknown;
+    quantity?: unknown;
+  }>;
+  itemSlug?: unknown;
+  quantity?: unknown;
+  customer?: {
+    name?: unknown;
+    email?: unknown;
+    phone?: unknown;
+  };
+}
 
 const parseQuantity = (value: unknown) => {
   const parsed =
-    typeof value === 'number'
+    typeof value === "number"
       ? value
       : Number.parseInt(
-          typeof value === 'string' ? value : String(value ?? ''),
-          10
+          typeof value === "string" ? value : String(value ?? ""),
+          10,
         );
 
   if (!Number.isFinite(parsed)) return 1;
@@ -22,12 +37,12 @@ const parseQuantity = (value: unknown) => {
 };
 
 const parseRequestedItems = (
-  body: any
+  body: CreateOrderRequestBody | null,
 ): Array<{ slug: string; quantity: number }> => {
   if (Array.isArray(body?.items)) {
     const items = body.items
-      .map((item: any) => ({
-        slug: typeof item?.slug === 'string' ? item.slug.trim() : '',
+      .map((item) => ({
+        slug: typeof item?.slug === "string" ? item.slug.trim() : "",
         quantity: parseQuantity(item?.quantity),
       }))
       .filter((item: { slug: string; quantity: number }) => Boolean(item.slug));
@@ -36,7 +51,7 @@ const parseRequestedItems = (
   }
 
   const legacySlug =
-    typeof body?.itemSlug === 'string' ? body.itemSlug.trim() : '';
+    typeof body?.itemSlug === "string" ? body.itemSlug.trim() : "";
   if (!legacySlug) return [];
 
   return [{ slug: legacySlug, quantity: parseQuantity(body?.quantity) }];
@@ -44,18 +59,22 @@ const parseRequestedItems = (
 
 export async function POST(request: Request) {
   try {
+    const { supabase, user } = await requireAuthenticatedRequest(request);
     const body = await request.json().catch(() => null);
     const requestedItems = parseRequestedItems(body);
 
     if (requestedItems.length === 0) {
-      return NextResponse.json({ error: 'Missing items.' }, { status: 400 });
+      return NextResponse.json({ error: "Missing items." }, { status: 400 });
     }
 
     const mergedBySlug = new Map<string, number>();
     for (const item of requestedItems) {
       mergedBySlug.set(
         item.slug,
-        Math.max(1, Math.min(25, (mergedBySlug.get(item.slug) ?? 0) + item.quantity))
+        Math.max(
+          1,
+          Math.min(25, (mergedBySlug.get(item.slug) ?? 0) + item.quantity),
+        ),
       );
     }
 
@@ -63,116 +82,178 @@ export async function POST(request: Request) {
       ([slug, quantity]) => ({
         slug,
         quantity,
-      })
+      }),
     );
 
     const mealLookups = await Promise.all(
       requestedEntries.map(async (entry) => ({
         ...entry,
         meal: await getMealBySlug(entry.slug),
-      }))
+      })),
     );
 
     const missingItems = mealLookups.filter((entry) => !entry.meal);
     if (missingItems.length > 0) {
       return NextResponse.json(
-        { error: `Item not found: ${missingItems.map((item) => item.slug).join(', ')}` },
-        { status: 404 }
+        {
+          error: `Item not found: ${missingItems.map((item) => item.slug).join(", ")}`,
+        },
+        { status: 404 },
       );
     }
 
-    const lineItems = mealLookups.map((entry) => {
-      const meal = entry.meal!;
-      const unitPrice = Number(meal.price ?? 0);
-      return {
-        slug: meal.slug,
-        name: meal.name,
-        quantity: entry.quantity,
-        unitPrice,
-        lineTotal: unitPrice * entry.quantity,
-      };
-    });
+    const lineItems = mealLookups
+      .map((entry) => {
+        const meal = entry.meal;
+        if (!meal) {
+          return null;
+        }
 
-    const currency = 'INR';
+        const unitPrice = Number(meal.price ?? 0);
+        return {
+          slug: meal.slug,
+          name: meal.name,
+          quantity: entry.quantity,
+          unitPrice,
+          lineTotal: unitPrice * entry.quantity,
+        };
+      })
+      .filter(
+        (
+          item,
+        ): item is {
+          slug: string;
+          name: string;
+          quantity: number;
+          unitPrice: number;
+          lineTotal: number;
+        } => Boolean(item),
+      );
+
+    const currency = "INR";
     const subtotalInRupees = lineItems.reduce(
       (total, item) => total + item.lineTotal,
-      0
+      0,
     );
 
     if (subtotalInRupees <= 0) {
       return NextResponse.json(
         {
           error:
-            'One or more selected items have no price set. Please contact support.',
+            "One or more selected items have no price set. Please contact support.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    // Razorpay expects amount in paise (smallest currency unit).
-    // Minimum order is Rs 1 = 100 paise.
     const amount = Math.max(100, Math.round(subtotalInRupees * 100));
     if (!Number.isFinite(amount)) {
-      return NextResponse.json({ error: 'Invalid amount.' }, { status: 400 });
+      return NextResponse.json({ error: "Invalid amount." }, { status: 400 });
     }
 
     const customerFromBody =
-      typeof body?.customer === 'object' && body.customer
+      typeof body?.customer === "object" && body.customer
         ? {
             name:
-              typeof body.customer.name === 'string'
+              typeof body.customer.name === "string"
                 ? body.customer.name.trim()
                 : undefined,
             email:
-              typeof body.customer.email === 'string'
+              typeof body.customer.email === "string"
                 ? body.customer.email.trim()
                 : undefined,
             phone:
-              typeof body.customer.phone === 'string'
+              typeof body.customer.phone === "string"
                 ? body.customer.phone.trim()
                 : undefined,
           }
         : undefined;
 
-    const customer =
-      customerFromBody &&
-      (customerFromBody.name ||
-        customerFromBody.email ||
-        customerFromBody.phone)
-        ? customerFromBody
-        : undefined;
+    const customer = {
+      name:
+        customerFromBody?.name ||
+        user.user_metadata?.full_name ||
+        user.user_metadata?.name ||
+        undefined,
+      email: customerFromBody?.email || user.email || undefined,
+      phone:
+        customerFromBody?.phone ||
+        (typeof user.phone === "string" ? user.phone : undefined) ||
+        (typeof user.user_metadata?.phone === "string"
+          ? user.user_metadata.phone
+          : undefined),
+    };
 
-    const internal = createInternalOrder({
+    const internalOrderId = crypto.randomUUID();
+
+    const { error: insertError } = await supabase.from("orders").insert({
+      id: internalOrderId,
+      user_id: user.id,
+      payment_status: "created",
+      fulfillment_status: "payment_pending",
       amount,
       currency,
       items: lineItems,
       customer,
     });
 
-    const razorpayOrder = await createRazorpayOrder({
-      amount,
-      currency,
-      receipt: internal.id,
-      notes: {
-        itemCount: String(lineItems.length),
-        items: lineItems.map((item) => `${item.slug}:${item.quantity}`).join(','),
-      },
-    });
+    if (insertError) {
+      throw new Error(insertError.message || "Failed to save order.");
+    }
 
-    attachRazorpayOrder(internal.id, razorpayOrder.id);
+    try {
+      const razorpayOrder = await createRazorpayOrder({
+        amount,
+        currency,
+        receipt: internalOrderId,
+        notes: {
+          itemCount: String(lineItems.length),
+          items: lineItems
+            .map((item) => `${item.slug}:${item.quantity}`)
+            .join(","),
+        },
+      });
 
-    return NextResponse.json({
-      orderId: internal.id,
-      razorpayOrderId: razorpayOrder.id,
-      amount: razorpayOrder.amount,
-      currency: razorpayOrder.currency,
-      itemName:
-        lineItems.length === 1 ? lineItems[0].name : `${lineItems.length} items`,
-      items: lineItems,
-    });
+      const { error: updateError } = await supabase
+        .from("orders")
+        .update({ razorpay_order_id: razorpayOrder.id })
+        .eq("id", internalOrderId)
+        .eq("user_id", user.id);
+
+      if (updateError) {
+        throw new Error(
+          updateError.message || "Failed to attach payment order.",
+        );
+      }
+
+      return NextResponse.json({
+        orderId: internalOrderId,
+        razorpayOrderId: razorpayOrder.id,
+        amount: razorpayOrder.amount,
+        currency: razorpayOrder.currency,
+        itemName:
+          lineItems.length === 1
+            ? lineItems[0].name
+            : `${lineItems.length} items`,
+        items: lineItems,
+      });
+    } catch (razorpayError) {
+      await supabase
+        .from("orders")
+        .delete()
+        .eq("id", internalOrderId)
+        .eq("user_id", user.id);
+      throw razorpayError;
+    }
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
+    if (error instanceof AuthenticationError) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: error.statusCode },
+      );
+    }
+
+    const message = error instanceof Error ? error.message : "Unknown error";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
-

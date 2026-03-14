@@ -1,20 +1,21 @@
-'use client';
+"use client";
 
-import { useMemo, useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import type { Meal } from '@/lib/types';
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
+import { useAuth } from "@/context/AuthContext";
+import type { Meal } from "@/lib/types";
 
 interface OrderClientProps {
   meal: Meal | null;
 }
 
+const formatPrice = (value: number) => `INR ${value.toFixed(2)}`;
+
 export default function OrderClient({ meal }: OrderClientProps) {
   const [quantity, setQuantity] = useState(1);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
   const router = useRouter();
+  const { user, isLoading } = useAuth();
 
   const total = useMemo(() => {
     if (!meal) return 0;
@@ -25,7 +26,9 @@ export default function OrderClient({ meal }: OrderClientProps) {
     return (
       <div className="px-4 md:px-10 lg:px-40 py-24 animate-fade-in">
         <div className="max-w-3xl mx-auto text-center bg-white dark:bg-surface-dark border border-gray-100 dark:border-white/10 rounded-3xl p-12">
-          <h1 className="text-3xl md:text-4xl font-black mb-4">Your order is empty</h1>
+          <h1 className="text-3xl md:text-4xl font-black mb-4">
+            Your order is empty
+          </h1>
           <p className="text-gray-500 dark:text-gray-300 mb-8">
             Choose a meal from the menu to start your order.
           </p>
@@ -48,24 +51,39 @@ export default function OrderClient({ meal }: OrderClientProps) {
     );
   }
 
+  const checkoutPath = `/checkout/payment?item=${encodeURIComponent(meal.slug)}&qty=${quantity}`;
+  const signInPath = `/signin?next=${encodeURIComponent(`/order?item=${meal.slug}`)}`;
+
   return (
     <div className="px-4 md:px-10 lg:px-40 py-16 animate-fade-in">
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-12 items-start">
         <div className="bg-white dark:bg-surface-dark border border-gray-100 dark:border-white/10 rounded-3xl p-8">
           <div className="flex items-center gap-6 mb-8">
             <div className="w-28 h-28 rounded-2xl overflow-hidden border border-gray-100 dark:border-white/10">
-              <img src={meal.image} alt={meal.imageAlt || meal.name} className="w-full h-full object-cover" />
+              <img
+                src={meal.image}
+                alt={meal.imageAlt || meal.name}
+                className="w-full h-full object-cover"
+              />
             </div>
             <div className="flex-1">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400 mb-2">{meal.category}</p>
-              <h1 className="text-2xl md:text-3xl font-black mb-2">{meal.name}</h1>
-              <p className="text-sm text-gray-500 dark:text-gray-300">{meal.description}</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400 mb-2">
+                {meal.category}
+              </p>
+              <h1 className="text-2xl md:text-3xl font-black mb-2">
+                {meal.name}
+              </h1>
+              <p className="text-sm text-gray-500 dark:text-gray-300">
+                {meal.description}
+              </p>
             </div>
           </div>
 
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400 mb-2">Quantity</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400 mb-2">
+                Quantity
+              </p>
               <div className="inline-flex items-center gap-3 rounded-full border border-gray-200 dark:border-white/10 px-4 py-2">
                 <button
                   type="button"
@@ -74,7 +92,9 @@ export default function OrderClient({ meal }: OrderClientProps) {
                 >
                   -
                 </button>
-                <span className="text-lg font-black w-8 text-center">{quantity}</span>
+                <span className="text-lg font-black w-8 text-center">
+                  {quantity}
+                </span>
                 <button
                   type="button"
                   onClick={() => setQuantity((q) => q + 1)}
@@ -85,8 +105,12 @@ export default function OrderClient({ meal }: OrderClientProps) {
               </div>
             </div>
             <div className="text-right">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400 mb-2">Item price</p>
-              <p className="text-2xl font-black text-primary">${meal.price.toFixed(2)}</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400 mb-2">
+                Item price
+              </p>
+              <p className="text-2xl font-black text-primary">
+                {formatPrice(meal.price)}
+              </p>
             </div>
           </div>
         </div>
@@ -95,12 +119,16 @@ export default function OrderClient({ meal }: OrderClientProps) {
           <h2 className="text-2xl font-black mb-6">Order Summary</h2>
           <div className="space-y-4 text-sm">
             <div className="flex justify-between">
-              <span className="text-gray-500 dark:text-gray-300">{meal.name} × {quantity}</span>
-              <span className="font-bold">${(meal.price * quantity).toFixed(2)}</span>
+              <span className="text-gray-500 dark:text-gray-300">
+                {meal.name} x {quantity}
+              </span>
+              <span className="font-bold">
+                {formatPrice(meal.price * quantity)}
+              </span>
             </div>
             <div className="flex justify-between text-gray-500 dark:text-gray-300">
               <span>Estimated tax</span>
-              <span>$0.00</span>
+              <span>{formatPrice(0)}</span>
             </div>
             <div className="flex justify-between text-gray-500 dark:text-gray-300">
               <span>Pickup</span>
@@ -108,63 +136,54 @@ export default function OrderClient({ meal }: OrderClientProps) {
             </div>
             <div className="border-t border-dashed border-gray-200 dark:border-white/10 pt-4 flex justify-between text-lg font-black">
               <span>Total</span>
-              <span className="text-primary">${total.toFixed(2)}</span>
+              <span className="text-primary">{formatPrice(total)}</span>
             </div>
           </div>
+
           <div className="mt-8 space-y-4">
-            <h3 className="text-lg font-black">Your Details</h3>
-            <div className="flex flex-col gap-1">
-              <label htmlFor="order-name" className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">Name</label>
-              <input
-                id="order-name"
-                type="text"
-                placeholder="Full name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="h-11 rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 px-4 text-sm font-bold text-gray-700 dark:text-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-primary outline-none transition-all"
-              />
-            </div>
-            <div className="flex flex-col gap-1">
-              <label htmlFor="order-email" className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">Email</label>
-              <input
-                id="order-email"
-                type="email"
-                placeholder="you@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="h-11 rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 px-4 text-sm font-bold text-gray-700 dark:text-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-primary outline-none transition-all"
-              />
-            </div>
-            <div className="flex flex-col gap-1">
-              <label htmlFor="order-phone" className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-400">Phone</label>
-              <input
-                id="order-phone"
-                type="tel"
-                placeholder="+91 98765 43210"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="h-11 rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 px-4 text-sm font-bold text-gray-700 dark:text-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-primary outline-none transition-all"
-              />
-            </div>
+            <h3 className="text-lg font-black">Account</h3>
+            {isLoading ? (
+              <p className="text-sm text-gray-500 dark:text-gray-300">
+                Checking your account...
+              </p>
+            ) : user ? (
+              <div className="rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-4 text-sm space-y-2">
+                <p className="font-black">{user.name}</p>
+                <p className="text-gray-500 dark:text-gray-300">{user.email}</p>
+                <p className="text-gray-500 dark:text-gray-300">
+                  Payment and order history will be saved to this account.
+                </p>
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-amber-200 bg-amber-50 dark:border-amber-500/30 dark:bg-amber-500/10 p-4 text-sm text-amber-900 dark:text-amber-100">
+                Sign in is required before you can place this order.
+              </div>
+            )}
           </div>
-          <button
-            type="button"
-            className="mt-6 w-full h-14 rounded-2xl bg-primary hover:bg-primary-hover text-bg-dark font-extrabold text-sm md:text-base flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={!name.trim() || !email.trim() || !phone.trim()}
-            onClick={() => {
-              const params = new URLSearchParams({
-                item: meal.slug,
-                qty: String(quantity),
-                name: name.trim(),
-                email: email.trim(),
-                phone: phone.trim(),
-              });
-              router.push(`/checkout/payment?${params.toString()}`);
-            }}
-          >
-            Proceed to Checkout
-            <span className="material-symbols-outlined text-lg">arrow_forward</span>
-          </button>
+
+          {user ? (
+            <button
+              type="button"
+              className="mt-6 w-full h-14 rounded-2xl bg-primary hover:bg-primary-hover text-bg-dark font-extrabold text-sm md:text-base flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg shadow-primary/20"
+              onClick={() => {
+                router.push(checkoutPath);
+              }}
+            >
+              Proceed to Checkout
+              <span className="material-symbols-outlined text-lg">
+                arrow_forward
+              </span>
+            </button>
+          ) : (
+            <Link
+              href={signInPath}
+              className="mt-6 w-full h-14 rounded-2xl bg-primary hover:bg-primary-hover text-bg-dark font-extrabold text-sm md:text-base flex items-center justify-center gap-2 transition-all active:scale-[0.98] shadow-lg shadow-primary/20"
+            >
+              Sign In to Order
+              <span className="material-symbols-outlined text-lg">login</span>
+            </Link>
+          )}
+
           <div className="mt-6 flex flex-col sm:flex-row gap-3">
             <Link
               href="/menu"

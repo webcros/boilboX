@@ -1,25 +1,28 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import type { OrderTracking } from '@/lib/types';
+import Link from "next/link";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { getAccessToken } from "@/lib/client-auth";
+import type { OrderTracking } from "@/lib/types";
 
 interface TrackOrderClientProps {
   initialOrderId?: string;
 }
 
-const fulfillmentLabels: Record<OrderTracking['fulfillmentStatus'], string> = {
-  payment_pending: 'Payment Pending',
-  payment_confirmed: 'Payment Confirmed',
-  preparing: 'Preparing',
-  ready_for_pickup: 'Ready for Pickup',
-  completed: 'Completed',
+const fulfillmentLabels: Record<OrderTracking["fulfillmentStatus"], string> = {
+  payment_pending: "Payment Pending",
+  payment_confirmed: "Payment Confirmed",
+  preparing: "Preparing",
+  ready_for_pickup: "Ready for Pickup",
+  completed: "Completed",
 };
 
 const formatCurrency = (currency: string, amountInPaise: number) => {
   const amount = amountInPaise / 100;
   try {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
       currency,
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
@@ -30,28 +33,36 @@ const formatCurrency = (currency: string, amountInPaise: number) => {
 };
 
 const formatDateTime = (value?: string) => {
-  if (!value) return 'Pending';
+  if (!value) return "Pending";
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return 'Pending';
-  return date.toLocaleString('en-IN', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
+  if (Number.isNaN(date.getTime())) return "Pending";
+  return date.toLocaleString("en-IN", {
+    dateStyle: "medium",
+    timeStyle: "short",
   });
 };
 
 export default function TrackOrderClient({
-  initialOrderId = '',
+  initialOrderId = "",
 }: TrackOrderClientProps) {
+  const { user, isLoading: isAuthLoading } = useAuth();
   const [orderId, setOrderId] = useState(initialOrderId);
   const [tracking, setTracking] = useState<OrderTracking | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [hasFetched, setHasFetched] = useState(false);
 
-  const loadTracking = async (requestedOrderId: string) => {
+  const signInPath = useMemo(() => {
+    const next = initialOrderId
+      ? `/track-order?orderId=${encodeURIComponent(initialOrderId)}`
+      : "/track-order";
+    return `/signin?next=${encodeURIComponent(next)}`;
+  }, [initialOrderId]);
+
+  const loadTracking = useCallback(async (requestedOrderId: string) => {
     const trimmed = requestedOrderId.trim();
     if (!trimmed) {
-      setError('Please enter an order ID.');
+      setError("Please enter an order ID.");
       setTracking(null);
       return;
     }
@@ -61,13 +72,20 @@ export default function TrackOrderClient({
     setHasFetched(true);
 
     try {
-      const response = await fetch(`/api/order/${encodeURIComponent(trimmed)}`, {
-        method: 'GET',
-      });
+      const accessToken = await getAccessToken();
+      const response = await fetch(
+        `/api/order/${encodeURIComponent(trimmed)}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        },
+      );
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data?.error || 'Unable to fetch order status.');
+        throw new Error(data?.error || "Unable to fetch order status.");
       }
 
       setTracking(data as OrderTracking);
@@ -75,18 +93,58 @@ export default function TrackOrderClient({
       const message =
         fetchError instanceof Error
           ? fetchError.message
-          : 'Unable to fetch order status.';
+          : "Unable to fetch order status.";
       setError(message);
       setTracking(null);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    if (!initialOrderId) return;
+    if (!initialOrderId || !user) return;
     loadTracking(initialOrderId);
-  }, [initialOrderId]);
+  }, [initialOrderId, user, loadTracking]);
+
+  if (isAuthLoading) {
+    return (
+      <div className="px-4 md:px-10 lg:px-40 py-24 animate-fade-in">
+        <div className="max-w-3xl mx-auto text-center text-gray-500 dark:text-gray-300">
+          Checking your account...
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="px-4 md:px-10 lg:px-40 py-24 animate-fade-in">
+        <div className="max-w-3xl mx-auto text-center bg-white dark:bg-surface-dark border border-gray-100 dark:border-white/10 rounded-3xl p-12">
+          <h1 className="text-3xl md:text-4xl font-black mb-4">
+            Sign in to track orders
+          </h1>
+          <p className="text-gray-500 dark:text-gray-300 mb-8">
+            Order tracking is only available for the account that placed the
+            order.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              href={signInPath}
+              className="h-12 px-8 rounded-2xl bg-primary hover:bg-primary-hover text-bg-dark font-extrabold flex items-center justify-center"
+            >
+              Sign In
+            </Link>
+            <Link
+              href="/profile"
+              className="h-12 px-8 rounded-2xl border border-gray-200 dark:border-white/10 font-bold flex items-center justify-center hover:bg-gray-50 dark:hover:bg-white/5"
+            >
+              Profile
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="px-4 md:px-10 lg:px-40 py-16 animate-fade-in">
@@ -110,7 +168,7 @@ export default function TrackOrderClient({
               type="text"
               value={orderId}
               onChange={(event) => setOrderId(event.target.value)}
-              placeholder="Enter order ID (example: 123e4567...)"
+              placeholder="Enter order ID"
               className="flex-1 h-12 rounded-2xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 px-4 text-sm font-bold text-gray-700 dark:text-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-primary outline-none transition-all"
             />
             <button
@@ -118,12 +176,14 @@ export default function TrackOrderClient({
               disabled={isLoading}
               className="h-12 px-6 rounded-2xl bg-primary hover:bg-primary-hover text-bg-dark font-extrabold disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {isLoading ? 'Checking...' : 'Track'}
+              {isLoading ? "Checking..." : "Track"}
             </button>
           </form>
 
           {error && (
-            <p className="mt-4 text-sm text-red-600 dark:text-red-300">{error}</p>
+            <p className="mt-4 text-sm text-red-600 dark:text-red-300">
+              {error}
+            </p>
           )}
         </section>
 
@@ -141,7 +201,9 @@ export default function TrackOrderClient({
                   <p className="text-xs uppercase tracking-[0.18em] text-gray-400 mb-2">
                     Order ID
                   </p>
-                  <p className="text-lg font-black break-all">{tracking.orderId}</p>
+                  <p className="text-lg font-black break-all">
+                    {tracking.orderId}
+                  </p>
                   <p className="text-sm text-gray-500 dark:text-gray-300 mt-2">
                     Placed on {formatDateTime(tracking.createdAt)}
                   </p>
@@ -155,7 +217,8 @@ export default function TrackOrderClient({
                     {fulfillmentLabels[tracking.fulfillmentStatus]}
                   </p>
                   <p className="text-sm text-gray-500 dark:text-gray-300 mt-2">
-                    Payment: {tracking.paymentStatus === 'paid' ? 'Paid' : 'Pending'}
+                    Payment:{" "}
+                    {tracking.paymentStatus === "paid" ? "Paid" : "Pending"}
                   </p>
                   {tracking.etaMinutes !== null && (
                     <p className="text-sm text-gray-500 dark:text-gray-300">
@@ -184,11 +247,11 @@ export default function TrackOrderClient({
                         </div>
                         <span
                           className={`text-[10px] uppercase tracking-[0.16em] px-2.5 py-1 rounded-full font-bold ${
-                            step.status === 'completed'
-                              ? 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300'
-                              : step.status === 'current'
-                                ? 'bg-primary/15 text-primary'
-                                : 'bg-gray-100 text-gray-500 dark:bg-white/10 dark:text-gray-300'
+                            step.status === "completed"
+                              ? "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300"
+                              : step.status === "current"
+                                ? "bg-primary/15 text-primary"
+                                : "bg-gray-100 text-gray-500 dark:bg-white/10 dark:text-gray-300"
                           }`}
                         >
                           {step.status}
@@ -206,12 +269,18 @@ export default function TrackOrderClient({
                 <h2 className="text-2xl font-black mb-5">Order Items</h2>
                 <div className="space-y-3">
                   {tracking.items.map((item) => (
-                    <div key={`${item.slug}-${item.quantity}`} className="flex justify-between gap-4 text-sm">
+                    <div
+                      key={`${item.slug}-${item.quantity}`}
+                      className="flex justify-between gap-4 text-sm"
+                    >
                       <span className="text-gray-500 dark:text-gray-300">
                         {item.name} x {item.quantity}
                       </span>
                       <span className="font-bold">
-                        {formatCurrency(tracking.currency, Math.round(item.lineTotal * 100))}
+                        {formatCurrency(
+                          tracking.currency,
+                          Math.round(item.lineTotal * 100),
+                        )}
                       </span>
                     </div>
                   ))}
@@ -228,9 +297,15 @@ export default function TrackOrderClient({
                     <p className="text-xs uppercase tracking-[0.18em] text-gray-400 mb-2">
                       Customer
                     </p>
-                    {tracking.customer.name && <p>Name: {tracking.customer.name}</p>}
-                    {tracking.customer.email && <p>Email: {tracking.customer.email}</p>}
-                    {tracking.customer.phone && <p>Phone: {tracking.customer.phone}</p>}
+                    {tracking.customer.name && (
+                      <p>Name: {tracking.customer.name}</p>
+                    )}
+                    {tracking.customer.email && (
+                      <p>Email: {tracking.customer.email}</p>
+                    )}
+                    {tracking.customer.phone && (
+                      <p>Phone: {tracking.customer.phone}</p>
+                    )}
                   </div>
                 )}
               </div>
@@ -241,4 +316,3 @@ export default function TrackOrderClient({
     </div>
   );
 }
-
