@@ -49,6 +49,11 @@ NEXT_PUBLIC_GOOGLE_CLIENT_ID=your_google_client_id
 ADMIN_EMAILS=admin@example.com,another-admin@example.com
 ```
 
+Notes:
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` or `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY` can be used instead of `NEXT_PUBLIC_SUPABASE_ANON_KEY` if your setup provides publishable keys.
+- `SUPABASE_SECRET_KEY` or `SUPABASE_SECRET_DEFAULT_KEY` can be used instead of `SUPABASE_SERVICE_ROLE_KEY` on some hosting integrations.
+- Do not place a publishable or anon key in the server secret variable. The server secret must be a Supabase secret/service-role key.
+
 To find your Supabase keys:
 1. Go to your Supabase project dashboard
 2. Go to **Project Settings** > **API**
@@ -111,3 +116,11 @@ CREATE TRIGGER on_auth_user_created
 
 To enable account-bound carts and order history, run the SQL in
 `supabase_migration_auth_cart_orders.sql` from the Supabase SQL editor.
+
+If checkout shows `Could not find the table 'public.orders' in the schema cache`,
+the connected Supabase project is missing that migration. After running the SQL,
+retry the request. If the error still appears immediately, run:
+
+```sql
+notify pgrst, 'reload schema';
+```

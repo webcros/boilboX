@@ -11,6 +11,7 @@ import {
 } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
+import { getReadableSupabaseErrorMessage } from "@/lib/supabase-errors";
 import type { Meal } from "@/lib/types";
 
 const STORAGE_KEY = "boilox-cart-v1";
@@ -181,7 +182,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
         localStorage.removeItem(STORAGE_KEY);
       } catch (error) {
-        console.error("Error loading saved cart:", error);
+        console.error(
+          "Error loading saved cart:",
+          getReadableSupabaseErrorMessage(error, "Failed to load saved cart."),
+        );
         if (!cancelled) {
           setItems(guestItems);
         }
@@ -211,7 +215,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
         saveGuestCart(items);
       } catch (error) {
-        console.error("Error saving cart:", error);
+        console.error(
+          "Error saving cart:",
+          getReadableSupabaseErrorMessage(error, "Failed to save cart."),
+        );
+        saveGuestCart(items);
       }
     };
 

@@ -12,6 +12,7 @@ import {
   type StoredOrder,
 } from "@/lib/orders";
 import { supabase } from "@/lib/supabase";
+import { getReadableSupabaseErrorMessage } from "@/lib/supabase-errors";
 
 const formatDate = (value?: string) => {
   if (!value) return "Unknown";
@@ -103,7 +104,9 @@ export default function ProfilePage() {
 
       if (error) {
         setOrders([]);
-        setOrdersError(error.message || "Failed to load orders.");
+        setOrdersError(
+          getReadableSupabaseErrorMessage(error, "Failed to load orders."),
+        );
         setIsOrdersLoading(false);
         return;
       }

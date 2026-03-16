@@ -9,6 +9,10 @@ import {
   AuthenticationError,
   requireAuthenticatedRequest,
 } from "@/lib/server-auth";
+import {
+  getReadableSupabaseErrorMessage,
+  isMissingSupabaseTableError,
+} from "@/lib/supabase-errors";
 
 export const runtime = "nodejs";
 
@@ -106,7 +110,10 @@ export async function POST(request: Request) {
     );
 
     if (cartError) {
-      console.error("Error clearing saved cart after payment:", cartError);
+      console.error(
+        "Error clearing saved cart after payment:",
+        getReadableSupabaseErrorMessage(cartError, "Failed to clear cart."),
+      );
     }
 
     return NextResponse.json({
@@ -122,7 +129,13 @@ export async function POST(request: Request) {
       );
     }
 
-    const message = error instanceof Error ? error.message : "Unknown error";
-    return NextResponse.json({ error: message }, { status: 500 });
+    const message = getReadableSupabaseErrorMessage(
+      error,
+      "Payment verification failed.",
+    );
+    return NextResponse.json(
+      { error: message },
+      { status: isMissingSupabaseTableError(error) ? 503 : 500 },
+    );
   }
 }
