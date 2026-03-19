@@ -1,48 +1,45 @@
-# Google OAuth Setup for Admin Authentication
+# Google OAuth Setup Notes
 
-To enable Google Sign-In for admins, you need to configure the following environment variables:
+This project currently signs users in through Supabase Auth.
 
-## 1. Create Google OAuth Credentials
+## Google Cloud Redirect URI
 
-1. Go to the [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a new project or select an existing one
-3. Enable the Google+ API (or Google People API)
-4. Go to "Credentials" in the left sidebar
-5. Click "Create Credentials" → "OAuth 2.0 Client IDs"
-6. For "Application type", select "Web application"
-7. In "Authorized redirect URIs", add:
-   - `http://localhost:3000/api/auth/google` (for development)
-   - `https://yourdomain.com/api/auth/google` (for production)
+Use your Supabase callback URL in Google Cloud:
 
-## 2. Add Environment Variables
+```text
+https://sbcfczhwwtnuiqhgiiem.supabase.co/auth/v1/callback
+```
 
-Create or update your `.env.local` file with the following variables:
+Do not point Google Cloud directly at `/api/auth/google` or `/auth/callback`.
+
+## Supabase URL Configuration
+
+In Supabase **Authentication** > **URL Configuration**, allow the app routes used by this repo:
+
+- `http://localhost:3000/auth/callback`
+- `http://localhost:3000/api/auth/google`
+- `https://boilox.com/auth/callback`
+- `https://boilox.com/api/auth/google`
+
+Using `http://localhost:3000/**` and `https://boilox.com/**` is also fine.
+
+## Environment Variables
 
 ```env
 GOOGLE_CLIENT_ID=your_google_client_id_here
 GOOGLE_CLIENT_SECRET=your_google_client_secret_here
-NEXT_PUBLIC_BASE_URL=http://localhost:3000
 ADMIN_EMAILS=admin@example.com,admin2@example.com
 ```
 
-Replace:
-- `your_google_client_id_here` - Your Google OAuth client ID
-- `your_google_client_secret_here` - Your Google OAuth client secret
-- `http://localhost:3000` - Your application's base URL
-- `admin@example.com,admin2@example.com` - Comma-separated list of admin email addresses
+Notes:
+- `NEXT_PUBLIC_BASE_URL` is not required for the current Supabase sign-in flow.
+- `ADMIN_EMAILS` should be a comma-separated list.
 
-## 3. How It Works
+## What Happens During Sign-In
 
-1. When a user visits `/admin`, they are redirected to Google OAuth if not authenticated
-2. Google OAuth verifies the user's email
-3. The system checks if the user's email is in the `ADMIN_EMAILS` list
-4. If authorized, a session is created and the user can access the admin panel
-5. The user's information is displayed in the admin header
-6. Users can sign out using the "Sign out" link
+1. The app asks Supabase to start Google OAuth.
+2. Google sends the user back to the Supabase callback URL.
+3. Supabase sends the user back to an allow-listed app URL such as `/auth/callback`.
+4. The app restores the session and redirects the user to the next page.
 
-## 4. Security Notes
-
-- Only emails listed in `ADMIN_EMAILS` can access the admin panel
-- Session tokens are stored as HTTP-only cookies for security
-- Sessions expire after 24 hours
-- HTTPS is enforced in production
+If sign-in lands on `http://localhost:3000/#access_token=...`, the requested callback path is usually missing from Supabase's redirect allow list.

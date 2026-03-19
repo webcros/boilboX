@@ -48,6 +48,14 @@ export interface OrderTrackingStep {
 
 export interface OrderTrackingSnapshot extends OrderTracking {}
 
+const FULFILLMENT_STATUS_SEQUENCE: FulfillmentStatus[] = [
+  "payment_pending",
+  "payment_confirmed",
+  "preparing",
+  "ready_for_pickup",
+  "completed",
+];
+
 export const ORDER_SELECT_FIELDS = [
   "id",
   "user_id",
@@ -62,6 +70,11 @@ export const ORDER_SELECT_FIELDS = [
   "created_at",
   "paid_at",
 ].join(",");
+
+const getFulfillmentStatusIndex = (status: FulfillmentStatus) => {
+  const index = FULFILLMENT_STATUS_SEQUENCE.indexOf(status);
+  return index >= 0 ? index : 0;
+};
 
 const parseNumber = (value: unknown) => {
   const parsed = typeof value === "number" ? value : Number(value ?? 0);
@@ -176,34 +189,41 @@ export const buildOrderTracking = (
       ? null
       : Math.max(0, (Date.now() - paidAtTime) / (1000 * 60));
 
-  let fulfillmentStatus: FulfillmentStatus = "payment_pending";
-  let currentStepIndex = 0;
-  let etaMinutes: number | null = null;
+  let estimatedStatus: FulfillmentStatus =
+    order.status === "paid" ? "payment_confirmed" : "payment_pending";
 
   if (order.status === "paid" && elapsedMinutes !== null) {
     if (elapsedMinutes < transitionMinutes.preparing) {
-      fulfillmentStatus = "payment_confirmed";
-      currentStepIndex = 1;
-      etaMinutes = Math.max(
-        1,
-        Math.ceil(transitionMinutes.ready - elapsedMinutes),
-      );
+      estimatedStatus = "payment_confirmed";
     } else if (elapsedMinutes < transitionMinutes.ready) {
-      fulfillmentStatus = "preparing";
-      currentStepIndex = 2;
-      etaMinutes = Math.max(
-        1,
-        Math.ceil(transitionMinutes.ready - elapsedMinutes),
-      );
+      estimatedStatus = "preparing";
     } else if (elapsedMinutes < transitionMinutes.completed) {
-      fulfillmentStatus = "ready_for_pickup";
-      currentStepIndex = 3;
-      etaMinutes = 0;
+      estimatedStatus = "ready_for_pickup";
     } else {
-      fulfillmentStatus = "completed";
-      currentStepIndex = 4;
-      etaMinutes = null;
+      estimatedStatus = "completed";
     }
+  }
+
+  const fulfillmentStatus =
+    getFulfillmentStatusIndex(order.fulfillmentStatus) >
+    getFulfillmentStatusIndex(estimatedStatus)
+      ? order.fulfillmentStatus
+      : estimatedStatus;
+  const currentStepIndex = getFulfillmentStatusIndex(fulfillmentStatus);
+
+  let etaMinutes: number | null = null;
+  if (fulfillmentStatus === "payment_confirmed" && elapsedMinutes !== null) {
+    etaMinutes = Math.max(
+      1,
+      Math.ceil(transitionMinutes.ready - elapsedMinutes),
+    );
+  } else if (fulfillmentStatus === "preparing" && elapsedMinutes !== null) {
+    etaMinutes = Math.max(
+      1,
+      Math.ceil(transitionMinutes.ready - elapsedMinutes),
+    );
+  } else if (fulfillmentStatus === "ready_for_pickup") {
+    etaMinutes = 0;
   }
 
   const formatIsoOffset = (baseIso: string, minutesToAdd: number) =>
