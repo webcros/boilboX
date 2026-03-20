@@ -19,32 +19,32 @@ export default async function Home() {
   return (
     <div className="animate-fade-in">
       {/* Hero */}
-      <section className="px-4 md:px-10 lg:px-40 py-6">
-        <div className="relative overflow-hidden rounded-[2rem] min-h-[500px] md:min-h-[650px] flex items-center justify-center bg-cover bg-center" style={{ backgroundImage: 'linear-gradient(rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.7) 100%), url("https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&q=80&w=1600")' }}>
-          <div className="relative z-10 flex flex-col gap-6 text-center max-w-3xl px-6">
-            <div className="inline-flex items-center justify-center gap-2 mx-auto px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20">
+      <section className="px-4 py-4 sm:py-6 md:px-6 xl:px-16 2xl:px-40">
+        <div className="relative flex min-h-[520px] items-center justify-center overflow-hidden rounded-[2rem] bg-cover bg-center sm:min-h-[600px] lg:min-h-[650px]" style={{ backgroundImage: 'linear-gradient(rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.7) 100%), url("https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&q=80&w=1600")' }}>
+          <div className="relative z-10 flex w-full max-w-4xl flex-col gap-5 px-5 py-12 text-center sm:gap-6 sm:px-8">
+            <div className="mx-auto inline-flex max-w-full items-center justify-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 backdrop-blur-md">
               <span className="material-symbols-outlined text-primary text-sm">eco</span>
               <span className="text-white text-xs font-bold uppercase tracking-widest">100% Sustainable</span>
             </div>
-            <h1 className="text-white text-4xl md:text-7xl font-black leading-tight tracking-tight">
+            <h1 className="text-[2.5rem] font-black leading-[0.95] tracking-tight text-white sm:text-5xl lg:text-7xl">
               Eat Clean. Live Light.<br />
               <span className="text-primary">100% Boiled, 0% Oil.</span>
             </h1>
-            <p className="text-white/90 text-lg md:text-xl font-medium leading-relaxed max-w-xl mx-auto">
+            <p className="mx-auto max-w-2xl text-base font-medium leading-relaxed text-white/90 sm:text-lg md:text-xl">
               BoilboX is redefining fast food. Transparency, nutrient retention, and meals that heal from the inside out.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mt-6">
-              <Link href="/menu" className="h-14 px-10 md:px-8 lg:px-10 rounded-xl bg-primary hover:bg-primary-hover text-bg-dark text-lg font-bold transition-all transform hover:scale-105 flex items-center justify-center md:whitespace-nowrap">
+            <div className="mt-4 grid w-full grid-cols-1 gap-3 min-[480px]:grid-cols-2 xl:grid-cols-4">
+              <Link href="/menu" className="flex min-h-14 w-full items-center justify-center rounded-xl bg-primary px-6 text-center text-base font-bold text-bg-dark transition-all hover:scale-[1.02] hover:bg-primary-hover sm:px-8 sm:text-lg">
                 Order Now
               </Link>
-              <Link href="/locations" className="h-14 px-10 md:px-8 lg:px-10 rounded-xl border border-white/30 text-white text-lg font-bold transition-all flex items-center justify-center md:whitespace-nowrap">
+              <Link href="/locations" className="flex min-h-14 w-full items-center justify-center rounded-xl border border-white/30 px-6 text-center text-base font-bold text-white transition-all sm:px-8 sm:text-lg">
                 Find a Kiosk
               </Link>
-              <Link href="/partner" className="h-14 px-10 md:px-8 lg:px-10 rounded-xl bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/30 text-lg font-bold transition-all flex items-center justify-center gap-2 md:whitespace-nowrap">
+              <Link href="/partner" className="flex min-h-14 w-full items-center justify-center gap-2 rounded-xl border border-white/30 bg-white/10 px-6 text-center text-base font-bold text-white transition-all hover:bg-white/20 sm:px-8 sm:text-lg">
                 <span>Partner</span>
                 <span className="material-symbols-outlined">arrow_forward</span>
               </Link>
-              <Link href="/model" className="h-14 px-10 md:px-8 lg:px-10 rounded-xl bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/30 text-lg font-bold transition-all flex items-center justify-center gap-2 md:whitespace-nowrap">
+              <Link href="/model" className="flex min-h-14 w-full items-center justify-center gap-2 rounded-xl border border-white/30 bg-white/10 px-6 text-center text-base font-bold text-white transition-all hover:bg-white/20 sm:px-8 sm:text-lg">
                 <span>How it Works</span>
                 <span className="material-symbols-outlined">arrow_forward</span>
               </Link>
@@ -54,13 +54,13 @@ export default async function Home() {
       </section>
 
       {/* Featured Meals */}
-      <section className="py-16 px-4 md:px-10 lg:px-40">
-        <div className="flex justify-between items-end mb-10">
+      <section className="px-4 py-16 md:px-6 xl:px-16 2xl:px-40">
+        <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h2 className="text-3xl md:text-5xl font-black mb-2">Featured Meals</h2>
             <p className="text-gray-500 text-lg">Handpicked dishes our guests love the most.</p>
           </div>
-          <Link href="/menu" className="text-primary font-bold text-lg flex items-center gap-1 group">
+          <Link href="/menu" className="group flex items-center gap-1 self-start text-lg font-bold text-primary sm:self-auto">
             See Full Menu <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
           </Link>
         </div>

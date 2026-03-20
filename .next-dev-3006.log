@@ -1,0 +1,14 @@
+
+> boilox@0.1.0 dev
+> next dev --port 3006
+
+  ▲ Next.js 14.2.35
+  - Local:        http://localhost:3006
+  - Environments: .env.local, .env
+
+ ✓ Starting...
+ ✓ Ready in 2.4s
+ ○ Compiling / ...
+ ✓ Compiled / in 2.3s (1110 modules)
+ GET / 200 in 2574ms
+^C

@@ -1,0 +1,10 @@
+
+> boilox@0.1.0 start
+> next start --port 3005
+
+  ▲ Next.js 14.2.35
+  - Local:        http://localhost:3005
+
+ ✓ Starting...
+ ✓ Ready in 793ms
+^C^C
