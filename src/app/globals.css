@@ -212,6 +212,18 @@ body {
     color: #000000 !important;
   }
 
+  html:not(.dark) .profile-light-option {
+    background-color: #0f172a !important;
+    border-color: #0f172a !important;
+    color: #ffffff !important;
+  }
+
+  html:not(.dark) .profile-light-option:hover {
+    background-color: #1e293b !important;
+    border-color: #1e293b !important;
+    color: #ffffff !important;
+  }
+
   html:not(.dark) .navbar-light-shell {
     background-color: #f0fdf4 !important;
     border-color: #bbf7d0 !important;

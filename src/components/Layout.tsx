@@ -66,7 +66,7 @@ const Navbar = () => {
         </Link>
 
         <nav className="hidden min-w-0 justify-center lg:flex">
-          <div className="navbar-light-shell inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-100 p-1.5 shadow-sm shadow-emerald-100/80 dark:border-white/10 dark:bg-white/5 dark:shadow-black/20">
+          <div className="navbar-light-shell inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-100 p-1.5 shadow-sm shadow-emerald-100/80 dark:border-emerald-900/80 dark:bg-emerald-950/70 dark:shadow-black/20">
             {navLinks.map((link) => {
               const isActive = isActiveLink(link.path);
 
@@ -78,8 +78,8 @@ const Navbar = () => {
                   data-active={isActive ? "true" : "false"}
                   className={`navbar-light-pill rounded-full px-3.5 py-2 text-[13px] font-semibold tracking-tight transition-all ${
                     isActive
-                      ? "bg-primary text-white shadow-sm shadow-primary/20"
-                      : "bg-emerald-50 text-emerald-950 hover:bg-emerald-200 hover:text-emerald-950 dark:text-gray-300 dark:hover:bg-white/8 dark:hover:text-gray-50"
+                      ? "bg-primary text-white shadow-sm shadow-primary/20 dark:bg-emerald-700 dark:text-white dark:shadow-emerald-950/40"
+                      : "bg-emerald-50 text-emerald-950 hover:bg-emerald-200 hover:text-emerald-950 dark:bg-emerald-950/80 dark:text-emerald-100 dark:hover:bg-emerald-900 dark:hover:text-white"
                   }`}
                 >
                   {link.name}
@@ -124,14 +124,14 @@ const Navbar = () => {
             (user ? (
               <Link
                 href="/profile"
-                className="hidden h-11 items-center justify-center rounded-full border border-gray-200/80 px-4 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5 md:inline-flex"
+                className="profile-light-option hidden h-11 items-center justify-center rounded-full border border-gray-200/80 px-4 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5 md:inline-flex"
               >
                 Profile
               </Link>
             ) : (
               <Link
                 href="/signin"
-                className="hidden h-11 items-center justify-center rounded-full border border-gray-200/80 px-4 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5 md:inline-flex"
+                className="profile-light-option hidden h-11 items-center justify-center rounded-full border border-gray-200/80 px-4 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 dark:border-white/10 dark:text-gray-200 dark:hover:bg-white/5 md:inline-flex"
               >
                 Sign In
               </Link>
@@ -199,8 +199,8 @@ const Navbar = () => {
                       data-active={isActive ? "true" : "false"}
                       className={`mobile-nav-light-pill flex items-center justify-between gap-3 rounded-2xl border px-4 py-3.5 text-sm font-semibold transition-colors ${
                         isActive
-                          ? "border-primary/40 bg-emerald-100 text-primary shadow-sm shadow-primary/10"
-                          : "border-emerald-200 bg-emerald-50 text-emerald-950 shadow-sm shadow-emerald-100/80 hover:border-emerald-300 hover:bg-emerald-100 dark:border-transparent dark:bg-bg-dark/70 dark:text-gray-200 dark:shadow-none dark:hover:bg-white/8"
+                          ? "border-primary/40 bg-emerald-100 text-primary shadow-sm shadow-primary/10 dark:border-emerald-700/80 dark:bg-emerald-700/85 dark:text-white dark:shadow-emerald-950/30"
+                          : "border-emerald-200 bg-emerald-50 text-emerald-950 shadow-sm shadow-emerald-100/80 hover:border-emerald-300 hover:bg-emerald-100 dark:border-emerald-900/80 dark:bg-emerald-950/75 dark:text-emerald-100 dark:shadow-none dark:hover:bg-emerald-900/85 dark:hover:text-white"
                       }`}
                     >
                       <span>{link.name}</span>
@@ -216,7 +216,7 @@ const Navbar = () => {
                 <Link
                   href="/cart"
                   onClick={() => setIsMenuOpen(false)}
-                  className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-950 shadow-sm shadow-emerald-100/80 transition-colors hover:border-emerald-300 hover:bg-emerald-100 dark:border-transparent dark:bg-bg-dark/70 dark:text-gray-200 dark:shadow-none dark:hover:bg-white/8"
+                  className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-950 shadow-sm shadow-emerald-100/80 transition-colors hover:border-emerald-300 hover:bg-emerald-100 dark:border-emerald-900/80 dark:bg-emerald-950/75 dark:text-emerald-100 dark:shadow-none dark:hover:bg-emerald-900/85 dark:hover:text-white"
                 >
                   Cart {itemCount > 0 ? `(${itemCount})` : ""}
                 </Link>
@@ -224,7 +224,7 @@ const Navbar = () => {
                   <Link
                     href={user ? "/profile" : "/signin"}
                     onClick={() => setIsMenuOpen(false)}
-                    className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-950 shadow-sm shadow-emerald-100/80 transition-colors hover:border-emerald-300 hover:bg-emerald-100 dark:border-transparent dark:bg-bg-dark/70 dark:text-gray-200 dark:shadow-none dark:hover:bg-white/8"
+                    className="profile-light-option rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-950 shadow-sm shadow-emerald-100/80 transition-colors hover:border-emerald-300 hover:bg-emerald-100 dark:border-emerald-900/80 dark:bg-emerald-950/75 dark:text-emerald-100 dark:shadow-none dark:hover:bg-emerald-900/85 dark:hover:text-white"
                   >
                     {user ? "Profile" : "Sign In"}
                   </Link>
