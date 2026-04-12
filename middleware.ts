@@ -1,21 +1,29 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const MAINTENANCE_MODE = process.env.MAINTENANCE_MODE === "true";
+// Keep this true while the temporary ban is active.
+const TEMPORARY_BAN_ENABLED = true;
 const MAINTENANCE_PATH = "/maintenance";
 
 export function middleware(request: NextRequest) {
+  if (!TEMPORARY_BAN_ENABLED) {
+    return NextResponse.next();
+  }
+
   const { pathname } = request.nextUrl;
 
-  // Allow framework assets and API routes to continue working.
+  // Allow only framework/system assets and the maintenance page itself.
   const isSystemPath =
     pathname.startsWith("/_next") ||
-    pathname.startsWith("/api") ||
     pathname.startsWith("/favicon") ||
     pathname.startsWith("/robots.txt") ||
     pathname.startsWith("/sitemap.xml");
 
-  if (!MAINTENANCE_MODE || isSystemPath || pathname === MAINTENANCE_PATH) {
+  if (
+    isSystemPath ||
+    pathname === MAINTENANCE_PATH ||
+    pathname.startsWith(`${MAINTENANCE_PATH}/`)
+  ) {
     return NextResponse.next();
   }
 
@@ -25,5 +33,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!.*\\..*).*)"],
+  matcher: ["/:path*"],
 };
